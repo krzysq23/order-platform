@@ -1,0 +1,1 @@
+-- initial schema for orders-service
