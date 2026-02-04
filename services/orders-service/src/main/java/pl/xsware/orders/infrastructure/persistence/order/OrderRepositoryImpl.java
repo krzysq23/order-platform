@@ -5,6 +5,7 @@ import pl.xsware.orders.domain.order.Order;
 import pl.xsware.orders.domain.order.OrderId;
 import pl.xsware.orders.domain.order.OrderRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,6 +27,14 @@ public class OrderRepositoryImpl implements OrderRepository {
     public Optional<Order> findById(OrderId orderId) {
         return jpaRepository.findById(orderId.value())
             .map(OrderRepositoryImpl::toDomain);
+    }
+
+    @Override
+    public List<Order> findByCustomerId(String customerId) {
+        return jpaRepository.findAllByCustomerId(customerId)
+            .stream()
+            .map(OrderRepositoryImpl::toDomain)
+            .toList();
     }
 
     private static OrderJpaEntity toEntity(Order order) {

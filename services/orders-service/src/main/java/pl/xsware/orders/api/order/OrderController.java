@@ -4,12 +4,12 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.xsware.orders.application.order.CreateOrderCommand;
 import pl.xsware.orders.application.order.CreateOrderUseCase;
+import pl.xsware.orders.application.order.GetOrdersByCustomerIdUseCase;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -17,11 +17,23 @@ import pl.xsware.orders.application.order.CreateOrderUseCase;
 public class OrderController {
 
     private final CreateOrderUseCase createOrderUseCase;
+    private final GetOrdersByCustomerIdUseCase getOrdersByCustomerIdUseCase;
+
+    @GetMapping("/{customerId}")
+    public List<OrderResponse> getOrdersByCustomer(@PathVariable String customerId) {
+        return getOrdersByCustomerIdUseCase
+            .getByCustomerId(customerId)
+            .stream()
+            .map(order -> new OrderResponse(
+                order.getId().value(),
+                order.getStatus().name(),
+                order.getCreatedAt()
+            ))
+            .toList();
+    }
 
     @PostMapping
-    public ResponseEntity<Void> createOrder(
-        @RequestBody @Valid CreateOrderRequest request
-    ) {
+    public ResponseEntity<Void> createOrder(@RequestBody @Valid CreateOrderRequest request) {
         CreateOrderCommand command = new CreateOrderCommand(
             request.getCustomerId()
         );

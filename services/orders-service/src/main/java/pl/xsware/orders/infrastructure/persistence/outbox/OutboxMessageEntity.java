@@ -1,13 +1,9 @@
 package pl.xsware.orders.infrastructure.persistence.outbox;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -32,7 +28,6 @@ public class OutboxMessageEntity {
     @Column(name = "event_type", nullable = false)
     private String eventType;
 
-    @Lob
     @Column(name = "payload", nullable = false)
     private String payload;
 

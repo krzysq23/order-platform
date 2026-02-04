@@ -3,6 +3,7 @@ package pl.xsware.orders.infrastructure.persistence.order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.xsware.orders.domain.order.OrderStatus;
 
 import java.time.Instant;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Table(name = "orders")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class OrderJpaEntity {
 
     @Id
