@@ -1,1 +1,3 @@
 rootProject.name = 'orders-service'
+include("orders-service")
+project(":orders-service").projectDir.mkdirs()
