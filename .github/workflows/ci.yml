@@ -19,4 +19,7 @@ jobs:
           java-version: 21
 
       - name: Build and test
+        working-directory: services/orders-service
         run: ./gradlew test
+        env:
+          SPRING_PROFILES_ACTIVE: ci

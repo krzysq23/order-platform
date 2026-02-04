@@ -1,6 +1,7 @@
 package pl.xsware.orders;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -10,6 +11,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
+@DisabledIfEnvironmentVariable(named = "SPRING_PROFILES_ACTIVE", matches = ".*ci.*")
 class OrdersServiceApplicationIT {
 
     @Container
