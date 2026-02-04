@@ -1,4 +1,9 @@
 package pl.xsware.orders.domain.order;
 
-public class OrderRepository {
+import java.util.Optional;
+
+public interface OrderRepository {
+
+    void save(Order order);
+    Optional<Order> findById(OrderId orderId);
 }

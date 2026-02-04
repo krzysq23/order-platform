@@ -1,4 +1,8 @@
 package pl.xsware.orders.domain.order;
 
-public class OrderStatus {
+public enum OrderStatus {
+
+    CREATED,
+    CONFIRMED,
+    CANCELLED
 }
