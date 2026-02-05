@@ -28,6 +28,7 @@ spring:
 
   flyway:
     enabled: true
+    clean-disabled: true
     locations: classpath:db/migration
 
 # Scheduler

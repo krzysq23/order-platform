@@ -37,6 +37,8 @@ public class OutboxDispatcherJob {
                 dispatcher.processOne(id);
             }
         }
+
+        log.debug("Outbox run instance={} ...", lockedBy);
     }
 
     private String instanceId() {
