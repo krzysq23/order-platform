@@ -25,20 +25,36 @@ public class OutboxDispatcherJob {
 
         String lockedBy = instanceId();
 
-        log.debug("OutboxDispatcherJob run instance={} ...", lockedBy);
+        log.debug("OUTBOX_JOB_RUN instance={} ...", lockedBy);
 
         int batchSize = 50;
         Duration lockTimeout = Duration.ofMinutes(2);
         int maxBatchesPerRun = 10;
+        int totalClaimed = 0;
+        int totalProcessed = 0;
 
         for (int i = 0; i < maxBatchesPerRun; i++) {
             List<UUID> ids = dispatcher.claimBatch(batchSize, lockTimeout, lockedBy);
+
             if (ids.isEmpty()) return;
+
+
+            totalClaimed += ids.size();
+            int processedThisBatch = 0;
 
             for (UUID id : ids) {
                 dispatcher.processOne(id);
+                processedThisBatch++;
             }
+
+            totalProcessed += processedThisBatch;
+
+            log.info("OUTBOX_JOB_BATCH claimed={} processed={} lockedBy={}",
+                ids.size(), processedThisBatch, lockedBy);
         }
+
+        log.info("OUTBOX_JOB_DONE totalClaimed={} totalProcessed={} lockedBy={}",
+            totalClaimed, totalProcessed, lockedBy);
     }
 
     private String instanceId() {

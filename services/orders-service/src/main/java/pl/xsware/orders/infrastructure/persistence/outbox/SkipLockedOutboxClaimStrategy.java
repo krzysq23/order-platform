@@ -28,12 +28,22 @@ public class SkipLockedOutboxClaimStrategy implements OutboxClaimStrategy {
     @Override
     @Transactional
     public List<UUID> claimNextBatch(int batchSize, Duration lockTimeout, String lockedBy) {
+
         Instant nowInstant = Instant.now(clock);
         Instant lockExpiredBeforeInstant = nowInstant.minus(lockTimeout);
 
         OffsetDateTime now = OffsetDateTime.ofInstant(nowInstant, ZoneOffset.UTC);
         OffsetDateTime lockExpiredBefore = OffsetDateTime.ofInstant(lockExpiredBeforeInstant, ZoneOffset.UTC);
 
+        /*
+            w jednym zapytaniu wybieramy rekordy do przetworzenia,
+            omijamy te aktualnie zablokowane przez inne instancje
+            i od razu oznacza wybrane jako zajęte.
+            - FOR UPDATE zakłada row lock na wybrane wiersze,
+              tak żeby inne transakcje nie mogły ich równolegle modyfikować w konfliktujący sposób.
+            - SKIP LOCKED mówi: jeśli jakiś wiersz jest już zablokowany przez inną transakcję,
+              nie czekaj, tylko go pomiń i wybierz następny.
+         */
         String sql = """
             WITH candidates AS (
                 SELECT id
