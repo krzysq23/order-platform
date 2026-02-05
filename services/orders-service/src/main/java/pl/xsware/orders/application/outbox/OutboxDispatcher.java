@@ -31,7 +31,7 @@ public class OutboxDispatcher {
     }
 
     @Transactional
-    public void processOne(UUID id) {
+    public boolean processOne(UUID id) {
         Instant now = Instant.now(clock);
 
         OutboxMessageEntity msg = outboxJpaRepository.findById(id)
@@ -40,7 +40,7 @@ public class OutboxDispatcher {
         if (msg.getProcessedAt() != null) {
             clearLock(msg);
             outboxJpaRepository.save(msg);
-            return;
+            return true;
         }
 
         try {
@@ -51,6 +51,7 @@ public class OutboxDispatcher {
             clearLock(msg);
 
             outboxJpaRepository.save(msg);
+            return true;
         } catch (Exception e) {
             int nextAttempts = msg.getAttempts() + 1;
             msg.setAttempts(nextAttempts);
@@ -64,6 +65,7 @@ public class OutboxDispatcher {
 
             log.warn("Outbox failed id={} attempts={} nextAttemptAt={} error={}",
                 id, nextAttempts, msg.getNextAttemptAt(), e.toString(), e);
+            return false;
         }
     }
 

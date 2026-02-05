@@ -41,16 +41,19 @@ public class OutboxDispatcherJob {
 
             totalClaimed += ids.size();
             int processedThisBatch = 0;
+            int processedSuccess = 0;
+            int processedFailed = 0;
 
             for (UUID id : ids) {
-                dispatcher.processOne(id);
+                boolean isProcessed = dispatcher.processOne(id);
                 processedThisBatch++;
+                if (isProcessed) processedSuccess++; else processedFailed++;
             }
 
             totalProcessed += processedThisBatch;
 
-            log.info("OUTBOX_JOB_BATCH claimed={} processed={} lockedBy={}",
-                ids.size(), processedThisBatch, lockedBy);
+            log.info("OUTBOX_JOB_BATCH claimed={} processed={}, processedSuccess={}, processedFailed={}, lockedBy={}",
+                ids.size(), processedThisBatch, processedSuccess, processedFailed, lockedBy);
         }
 
         log.info("OUTBOX_JOB_DONE totalClaimed={} totalProcessed={} lockedBy={}",
