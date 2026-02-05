@@ -2,20 +2,27 @@ package pl.xsware.orders.infrastructure.persistence.outbox;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import pl.xsware.orders.application.outbox.OutboxClaimStrategy;
 
 import java.time.*;
 import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
-public class OutboxClaimRepository {
+@ConditionalOnProperty(
+    name = "orders.outbox.claim-mode",
+    havingValue = "ADVISORY"
+)
+public class AdvisoryLockOutboxClaimStrategy implements OutboxClaimStrategy {
 
     private final NamedParameterJdbcTemplate jdbc;
     private final Clock clock;
 
     @Transactional
+    @Override
     public List<UUID> claimNextBatch(int batchSize, Duration lockTimeout, String lockedBy) {
 
         Instant nowInstant = Instant.now(clock);
@@ -89,9 +96,16 @@ public class OutboxClaimRepository {
 
     private boolean tryAdvisoryLock(UUID id) {
 
-        // Poniższa metoda determinuje stabilny klucz BIGINT z UUID w Postgres:
-        // bierze pierwsze 16 znaków szesnastkowych z md5(uuid)
-        // i interpretuje ją jako 64-bitową liczbę całkowitą ze znakiem.
+        /*
+            pg_try_advisory_lock -> zwraca true → lock został założony, false -> ktoś inny już trzyma ten lock
+            - advisory lock jest powiązany z połączeniem (session)
+            - NIE z transakcją (chyba że używasz _xact_ wariantu)
+            - jeśli connection żyje → lock żyje
+            - jeśli connection się zamknie (commit, rollback, crash JVM) → lock znika
+             Poniższa metoda determinuje stabilny klucz BIGINT z UUID w Postgres:
+             bierze pierwsze 16 znaków szesnastkowych z md5(uuid)
+             i interpretuje ją jako 64-bitową liczbę całkowitą ze znakiem.
+         */
         String sql = """
             SELECT pg_try_advisory_lock(
                 (('x' || substr(md5(:uuidText), 1, 16))::bit(64))::bigint

@@ -25,6 +25,8 @@ public class OutboxDispatcherJob {
 
         String lockedBy = instanceId();
 
+        log.debug("OutboxDispatcherJob run instance={} ...", lockedBy);
+
         int batchSize = 50;
         Duration lockTimeout = Duration.ofMinutes(2);
         int maxBatchesPerRun = 10;
@@ -37,8 +39,6 @@ public class OutboxDispatcherJob {
                 dispatcher.processOne(id);
             }
         }
-
-        log.debug("Outbox run instance={} ...", lockedBy);
     }
 
     private String instanceId() {

@@ -35,5 +35,6 @@ spring:
 orders:
   outbox:
     dispatcher:
-      fixed-delay: PT2S
-      initial-delay: PT5S
+      fixed-delay: PT1M
+      initial-delay: PT30S
+    claim-mode: SKIP_LOCKED  # or ADVISORY

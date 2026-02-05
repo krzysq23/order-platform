@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.xsware.orders.infrastructure.persistence.outbox.OutboxClaimRepository;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxJpaRepository;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxMessageEntity;
 
@@ -20,7 +19,7 @@ import java.util.UUID;
 public class OutboxDispatcher {
 
 
-    private final OutboxClaimRepository claimRepository;
+    private final OutboxClaimStrategy claimStrategy;
     private final OutboxJpaRepository outboxJpaRepository;
     private final OutboxPublisher publisher;
     private final OutboxRetryPolicy retryPolicy;
@@ -28,7 +27,7 @@ public class OutboxDispatcher {
 
     @Transactional
     public List<UUID> claimBatch(int batchSize, Duration lockTimeout, String lockedBy) {
-        return claimRepository.claimNextBatch(batchSize, lockTimeout, lockedBy);
+        return claimStrategy.claimNextBatch(batchSize, lockTimeout, lockedBy);
     }
 
     @Transactional
