@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import pl.xsware.orders.infrastructure.metrics.outbox.OutboxMetrics;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxJpaRepository;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxMessageEntity;
 
@@ -24,6 +25,7 @@ public class OutboxDispatcher {
     private final OutboxPublisher publisher;
     private final OutboxRetryPolicy retryPolicy;
     private final Clock clock;
+    private final OutboxMetrics metrics;
 
     @Transactional
     public List<UUID> claimBatch(int batchSize, Duration lockTimeout, String lockedBy) {
@@ -32,6 +34,18 @@ public class OutboxDispatcher {
 
     @Transactional
     public boolean processOne(UUID id) {
+        final boolean[] result = new boolean[1];
+
+        metrics.recordProcessTime(() -> {
+            result[0] = doProcessOne(id);
+        });
+
+        return result[0];
+    }
+
+    @Transactional
+    public boolean doProcessOne(UUID id) {
+
         Instant now = Instant.now(clock);
 
         OutboxMessageEntity msg = outboxJpaRepository.findById(id)

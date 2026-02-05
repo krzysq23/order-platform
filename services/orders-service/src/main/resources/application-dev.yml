@@ -39,3 +39,9 @@ orders:
       fixed-delay: PT15S
       initial-delay: PT10S
     claim-mode: SKIP_LOCKED  # or ADVISORY
+
+# Metrics
+management:
+  endpoint:
+    health:
+      show-details: always

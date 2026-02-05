@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import pl.xsware.orders.infrastructure.metrics.outbox.OutboxMetrics;
+import pl.xsware.orders.infrastructure.persistence.outbox.OutboxLagRepository;
 
 import java.net.InetAddress;
-import java.time.Duration;
+import java.time.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +20,9 @@ import java.util.UUID;
 public class OutboxDispatcherJob {
 
     private final OutboxDispatcher dispatcher;
+    private final OutboxMetrics metrics;
+    private final OutboxLagRepository lagRepository;
+    private final Clock clock;
 
     @Scheduled(
         fixedDelayString = "${orders.outbox.dispatcher.fixed-delay:PT2S}",
@@ -28,6 +33,10 @@ public class OutboxDispatcherJob {
         String lockedBy = instanceId();
 
         log.debug("OUTBOX_JOB_RUN instance={} ...", lockedBy);
+
+        OffsetDateTime now = OffsetDateTime.ofInstant(Instant.now(clock), ZoneOffset.UTC);
+        long lag = lagRepository.computeLagSeconds(now);
+        metrics.setLagSeconds(lag);
 
         int batchSize = 50;
         Duration lockTimeout = Duration.ofMinutes(2);
