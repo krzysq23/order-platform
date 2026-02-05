@@ -2,6 +2,7 @@ package pl.xsware.orders.application.outbox;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j(topic = "OUTBOX")
+@ConditionalOnProperty(name="orders.outbox.dispatcher.enabled", havingValue="true", matchIfMissing=true)
 @Component
 @RequiredArgsConstructor
 public class OutboxDispatcherJob {
