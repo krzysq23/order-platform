@@ -3,6 +3,7 @@ package pl.xsware.orders.application.order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.xsware.orders.application.outbox.OutboxWriter;
 import pl.xsware.orders.domain.order.Order;
 import pl.xsware.orders.domain.order.OrderRepository;
 
@@ -11,6 +12,7 @@ import pl.xsware.orders.domain.order.OrderRepository;
 public class CreateOrderService implements CreateOrderUseCase{
 
     private final OrderRepository orderRepository;
+    private final OutboxWriter outboxWriter;
 
     @Override
     @Transactional
@@ -18,5 +20,7 @@ public class CreateOrderService implements CreateOrderUseCase{
 
         Order order = Order.create(command.customerId());
         orderRepository.save(order);
+
+        outboxWriter.writeAll(order.pullDomainEvents());
     }
 }

@@ -19,8 +19,9 @@ public class OrderController {
     private final CreateOrderUseCase createOrderUseCase;
     private final GetOrdersByCustomerIdUseCase getOrdersByCustomerIdUseCase;
 
-    @GetMapping("/{customerId}")
-    public List<OrderResponse> getOrdersByCustomer(@PathVariable String customerId) {
+    @GetMapping
+    public List<OrderResponse> getOrdersByCustomer(@RequestParam String customerId) {
+
         return getOrdersByCustomerIdUseCase
             .getByCustomerId(customerId)
             .stream()
@@ -34,6 +35,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<Void> createOrder(@RequestBody @Valid CreateOrderRequest request) {
+
         CreateOrderCommand command = new CreateOrderCommand(
             request.getCustomerId()
         );

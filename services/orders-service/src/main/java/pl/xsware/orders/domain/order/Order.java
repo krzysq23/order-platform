@@ -2,6 +2,7 @@ package pl.xsware.orders.domain.order;
 
 import lombok.Getter;
 import pl.xsware.orders.domain.shared.DomainEvent;
+import pl.xsware.orders.domain.shared.OutboxEvent;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class Order {
     private OrderStatus status;
     private final Instant createdAt;
 
-    private final List<DomainEvent> domainEvents = new ArrayList<>();
+    private final List<OutboxEvent> domainEvents = new ArrayList<>();
 
     private Order(OrderId id, String customerId) {
         this.id = id;
@@ -43,8 +44,8 @@ public class Order {
         return new Order(id, customerId, status, createdAt);
     }
 
-    public List<DomainEvent> pullDomainEvents() {
-        List<DomainEvent> events = new ArrayList<>(domainEvents);
+    public List<OutboxEvent> pullDomainEvents() {
+        List<OutboxEvent> events = new ArrayList<>(domainEvents);
         domainEvents.clear();
         return events;
     }
