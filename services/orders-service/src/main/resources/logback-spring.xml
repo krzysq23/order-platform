@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="CONSOLE_PATTERN"
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] %logger{36} [%X{requestId}] - %msg%n%ex{full}"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ===== Root ===== -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!-- ===== Project ===== -->
+    <logger name="pl.xsware.orders" level="DEBUG"/>
+
+    <!-- ===== Framework ===== -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="WARN"/>
+
+    <!-- ===== Topics ===== -->
+    <logger name="OUTBOX" level="DEBUG"/>
+    <logger name="HTTP" level="DEBUG"/>
+
+    <!-- ===== DEV  ===== -->
+    <springProfile name="dev">
+        <logger name="pl.xsware.orders" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+    </springProfile>
+
+</configuration>

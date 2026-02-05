@@ -1,16 +1,20 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: orders-service
+  profiles:
+    active: dev
 
-  datasource:
-    url: jdbc:postgresql://localhost:5433/orders
-    username: orders
-    password: orders
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    open-in-view: false
-
-  flyway:
-    enabled: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name:orders-service}
