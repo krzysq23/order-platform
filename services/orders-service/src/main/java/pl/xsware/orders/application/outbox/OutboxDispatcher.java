@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
+@Slf4j(topic = "OUTBOX")
 @Service
 @RequiredArgsConstructor
 public class OutboxDispatcher {

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
+@Slf4j(topic = "HTTP")
 @Component
 public class RequestTimingFilter extends OncePerRequestFilter {
 

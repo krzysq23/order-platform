@@ -2,7 +2,7 @@
 <configuration>
 
     <property name="CONSOLE_PATTERN"
-              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{requestId}] %logger{36} - %msg%n%ex{full}"/>
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] %logger{36} [%X{requestId}] - %msg%n%ex{full}"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -23,6 +23,10 @@
     <logger name="org.hibernate" level="WARN"/>
     <logger name="org.hibernate.SQL" level="WARN"/>
     <logger name="org.hibernate.orm.jdbc.bind" level="WARN"/>
+
+    <!-- ===== Topics ===== -->
+    <logger name="OUTBOX" level="DEBUG"/>
+    <logger name="HTTP" level="DEBUG"/>
 
     <!-- ===== DEV  ===== -->
     <springProfile name="dev">

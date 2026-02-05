@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.xsware.orders.application.outbox.OutboxPublisher;
 
-@Slf4j
+@Slf4j(topic = "OUTBOX")
 @Component
 public class LoggingOutboxPublisher implements OutboxPublisher {
 
