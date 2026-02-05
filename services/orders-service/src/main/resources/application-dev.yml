@@ -1,3 +1,4 @@
+# JPA + Hibernate
 spring:
 
   datasource:
@@ -28,3 +29,10 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+# Scheduler
+orders:
+  outbox:
+    dispatcher:
+      fixed-delay: PT2S
+      initial-delay: PT5S

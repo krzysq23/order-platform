@@ -1,9 +1,10 @@
 package pl.xsware.orders.infrastructure.persistence.outbox;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -11,7 +12,9 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
+@Builder
 @Table(name = "outbox_messages")
 public class OutboxMessageEntity {
 
@@ -39,4 +42,19 @@ public class OutboxMessageEntity {
 
     @Column(name = "processed_at")
     private Instant processedAt;
+
+    @Column(name = "attempts", nullable = false)
+    private int attempts;
+
+    @Column(name = "next_attempt_at")
+    private Instant nextAttemptAt;
+
+    @Column(name = "locked_at")
+    private Instant lockedAt;
+
+    @Column(name = "locked_by")
+    private String lockedBy;
+
+    @Column(name = "last_error", columnDefinition = "text")
+    private String lastError;
 }
