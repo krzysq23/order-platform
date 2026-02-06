@@ -1,0 +1,62 @@
+name: order-platform
+
+services:
+  flyway-orders:
+    image: flyway/flyway:10
+    container_name: flyway-orders
+    command: -connectRetries=60 migrate
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres-orders:5432/orders
+      FLYWAY_USER: orders
+      FLYWAY_PASSWORD: orders
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+    volumes:
+      - ../../services/orders-service/src/main/resources/db/migration:/flyway/sql:ro
+    networks: [platform-net]
+
+  flyway-payments:
+    image: flyway/flyway:10
+    container_name: flyway-payments
+    command: -connectRetries=60 migrate
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres-payments:5432/payments
+      FLYWAY_USER: payments
+      FLYWAY_PASSWORD: payments
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+    volumes:
+      - ../../services/payments-service/src/main/resources/db/migration:/flyway/sql:ro
+    networks: [platform-net]
+
+  flyway-inventory:
+    image: flyway/flyway:10
+    container_name: flyway-inventory
+    command: -connectRetries=60 migrate
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres-inventory:5432/inventory
+      FLYWAY_USER: inventory
+      FLYWAY_PASSWORD: inventory
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+    volumes:
+      - ../../services/inventory-service/src/main/resources/db/migration:/flyway/sql:ro
+    networks: [platform-net]
+
+  flyway-notifications:
+    image: flyway/flyway:10
+    container_name: flyway-notifications
+    command: -connectRetries=60 migrate
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres-notifications:5432/notifications
+      FLYWAY_USER: notifications
+      FLYWAY_PASSWORD: notifications
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+    volumes:
+      - ../../services/notifications-service/src/main/resources/db/migration:/flyway/sql:ro
+    networks: [platform-net]
+
+networks:
+  platform-net:
+    external: true
