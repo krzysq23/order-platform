@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="orders-service"/>
+    <springProperty scope="context" name="ENV" source="spring.profiles.active" defaultValue="default"/>
+
+    <!-- ===== Project ===== -->
+    <logger name="pl.xsware.orders" level="DEBUG"/>
+
+    <!-- ===== Framework ===== -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.hibernate" level="WARN"/>
+
+    <!-- ===== Topics ===== -->
+    <logger name="HTTP" level="INFO"/>
+    <logger name="OUTBOX" level="INFO"/>
+
+    <!-- ===== DEV overrides ===== -->
+    <springProfile name="dev">
+        <logger name="pl.xsware.orders" level="DEBUG"/>
+        <logger name="OUTBOX" level="DEBUG"/>
+        <logger name="HTTP" level="INFO"/>
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+    </springProfile>
+
+</included>

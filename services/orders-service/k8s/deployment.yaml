@@ -22,6 +22,8 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
+            - name: LOGGING_CONFIG
+              value: classpath:logback-spring-k8s.xml
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://host.docker.internal:5433/orders
             - name: SPRING_DATASOURCE_USERNAME
