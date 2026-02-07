@@ -1,6 +1,7 @@
 package pl.xsware.payments.infrastucture.web.controller
 
 import jakarta.validation.Valid
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import pl.xsware.payments.application.command.CreatePaymentRequestCommand
@@ -9,8 +10,9 @@ import pl.xsware.payments.infrastucture.web.dto.CreatePaymentDto
 import pl.xsware.payments.infrastucture.web.dto.PaymentDto
 import java.util.UUID
 
+@Profile("dev")
 @RestController
-@RequestMapping("/payments")
+@RequestMapping("/dev/payments")
 class PaymentController(
     private val service: PaymentService
 ) {
