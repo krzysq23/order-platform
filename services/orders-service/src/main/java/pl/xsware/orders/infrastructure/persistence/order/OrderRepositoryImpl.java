@@ -42,7 +42,9 @@ public class OrderRepositoryImpl implements OrderRepository {
             order.getId().value(),
             order.getCustomerId(),
             order.getStatus(),
-            order.getCreatedAt()
+            order.getCreatedAt(),
+            order.getTotalAmount(),
+            order.getCurrency()
         );
     }
 
@@ -51,7 +53,9 @@ public class OrderRepositoryImpl implements OrderRepository {
             OrderId.of(entity.getId()),
             entity.getCustomerId(),
             entity.getStatus(),
-            entity.getCreatedAt()
+            entity.getCreatedAt(),
+            entity.getTotalAmount(),
+            entity.getCurrency()
         );
     }
 }

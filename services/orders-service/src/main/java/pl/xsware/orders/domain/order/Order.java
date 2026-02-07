@@ -4,6 +4,7 @@ import lombok.Getter;
 import pl.xsware.orders.domain.shared.DomainEvent;
 import pl.xsware.orders.domain.shared.OutboxEvent;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,31 +18,51 @@ public class Order {
     private final String customerId;
     private OrderStatus status;
     private final Instant createdAt;
+    private final BigDecimal totalAmount;
+    private final Currency currency;
 
     private final List<OutboxEvent> domainEvents = new ArrayList<>();
 
-    private Order(OrderId id, String customerId) {
-        this.id = id;
+    private Order(OrderId id, String customerId, BigDecimal totalAmount, Currency currency) {
+        this.id = Objects.requireNonNull(id);
         this.customerId = Objects.requireNonNull(customerId);
         this.status = OrderStatus.CREATED;
         this.createdAt = Instant.now();
-
+        this.totalAmount = totalAmount;
+        this.currency = Currency.PLN;
         this.domainEvents.add(OrderCreatedEvent.now(this));
     }
 
-    private Order(OrderId id, String customerId, OrderStatus status, Instant createdAt) {
-        this.id = id;
-        this.customerId = customerId;
-        this.status = status;
-        this.createdAt = createdAt;
+    private Order(
+        OrderId id,
+        String customerId,
+        OrderStatus status,
+        Instant createdAt,
+        BigDecimal totalAmount,
+        Currency currency
+    ) {
+        this.id = Objects.requireNonNull(id);
+        this.customerId = Objects.requireNonNull(customerId);
+        this.status = Objects.requireNonNull(status);
+        this.createdAt = Objects.requireNonNull(createdAt);
+        this.totalAmount = totalAmount;
+        this.currency = Currency.PLN;
     }
 
-    public static Order create(String customerId) {
-        return new Order(OrderId.newId(), customerId);
+    public static Order create(String customerId, BigDecimal totalAmount, Currency currency) {
+        if (totalAmount.scale() != 2) throw new IllegalArgumentException("totalAmount < 0");
+        return new Order(OrderId.newId(), customerId, totalAmount, currency);
     }
 
-    public static Order rehydrate(OrderId id, String customerId, OrderStatus status, Instant createdAt) {
-        return new Order(id, customerId, status, createdAt);
+    public static Order rehydrate(
+        OrderId id,
+        String customerId,
+        OrderStatus status,
+        Instant createdAt,
+        BigDecimal totalAmount,
+        Currency currency
+    ) {
+        return new Order(id, customerId, status, createdAt, totalAmount, currency);
     }
 
     public List<OutboxEvent> pullDomainEvents() {

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -14,4 +16,6 @@ public class CreateOrderRequest {
 
     @NotNull
     private String customerId;
+    @NotNull
+    private BigDecimal totalAmount;
 }
