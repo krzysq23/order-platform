@@ -1,0 +1,72 @@
+plugins {
+	id 'org.jetbrains.kotlin.jvm' version '2.2.21'
+	id 'org.jetbrains.kotlin.plugin.spring' version '2.2.21'
+	id 'org.springframework.boot' version '4.0.2'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.jetbrains.kotlin.plugin.jpa' version '2.2.21'
+}
+
+group = 'pl.xsware'
+version = '0.0.1-SNAPSHOT'
+description = 'Payment Service Kotlin application'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+    // Spring Boot
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    developmentOnly "org.springframework.boot:spring-boot-devtools"
+    // flyway
+    implementation "org.springframework.boot:spring-boot-starter-flyway"
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+
+    // postgresql
+    implementation "org.flywaydb:flyway-database-postgresql"
+    runtimeOnly "org.postgresql:postgresql"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+
+    // metrics + actuator
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "io.micrometer:micrometer-registry-prometheus"
+    implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+
+    // logstash
+    implementation "net.logstash.logback:logstash-logback-encoder:9.0"
+}
+
+kotlin {
+	compilerOptions {
+		freeCompilerArgs.addAll '-Xjsr305=strict', '-Xannotation-default-target=param-property'
+	}
+}
+
+allOpen {
+	annotation 'jakarta.persistence.Entity'
+	annotation 'jakarta.persistence.MappedSuperclass'
+	annotation 'jakarta.persistence.Embeddable'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
