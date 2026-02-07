@@ -1,0 +1,87 @@
+name: order-platform
+
+services:
+  # -------------------------
+  # Postgres per service
+  # -------------------------
+  postgres-orders:
+    image: postgres:16-alpine
+    container_name: postgres-orders
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: orders
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_orders_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders -d orders"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [platform-net]
+
+  postgres-payments:
+    image: postgres:16-alpine
+    container_name: postgres-payments
+    environment:
+      POSTGRES_DB: payments
+      POSTGRES_USER: payments
+      POSTGRES_PASSWORD: payments
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg_payments_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payments -d payments"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [platform-net]
+
+  postgres-inventory:
+    image: postgres:16-alpine
+    container_name: postgres-inventory
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+    ports:
+      - "5435:5432"
+    volumes:
+      - pg_inventory_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [platform-net]
+
+  postgres-notifications:
+    image: postgres:16-alpine
+    container_name: postgres-notifications
+    environment:
+      POSTGRES_DB: notifications
+      POSTGRES_USER: notifications
+      POSTGRES_PASSWORD: notifications
+    ports:
+      - "5436:5432"
+    volumes:
+      - pg_notifications_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notifications -d notifications"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [platform-net]
+
+networks:
+  platform-net:
+    external: true
+
+volumes:
+  pg_orders_data:
+  pg_payments_data:
+  pg_inventory_data:
+  pg_notifications_data:
