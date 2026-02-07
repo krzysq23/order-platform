@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="logback/base.xml"/>
+    <include resource="logback/console-plain.xml"/>
+
+    <root level="INFO">
+        <appender-ref ref="PLAIN_CONSOLE"/>
+    </root>
+</configuration>
