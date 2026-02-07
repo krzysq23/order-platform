@@ -1,0 +1,85 @@
+plugins {
+	id 'org.jetbrains.kotlin.jvm' version '2.1.21'
+	id 'org.jetbrains.kotlin.plugin.spring' version '2.1.21'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '2.1.21'
+	id 'org.springframework.boot' version '3.5.10'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'pl.xsware'
+version = '0.0.1-SNAPSHOT'
+description = 'Payment Service Kotlin application'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
+
+    // Spring Boot
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    developmentOnly "org.springframework.boot:spring-boot-devtools"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+
+    // Flyway + Postgres
+    implementation "org.flywaydb:flyway-core"
+    runtimeOnly "org.flywaydb:flyway-database-postgresql"
+    runtimeOnly "org.postgresql:postgresql"
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+
+    // Metrics
+    implementation "io.micrometer:micrometer-registry-prometheus"
+
+    // Tracing
+    implementation "io.micrometer:micrometer-tracing"
+    implementation "io.micrometer:micrometer-tracing-bridge-otel"
+
+    // Logging
+    implementation "net.logstash.logback:logstash-logback-encoder:${logstashVersion}"
+
+    // Tests
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+}
+
+kotlin {
+    jvmToolchain(21)
+
+    compilerOptions {
+		freeCompilerArgs.addAll '-Xjsr305=strict', '-Xannotation-default-target=param-property'
+	}
+}
+
+allOpen {
+	annotation 'jakarta.persistence.Entity'
+	annotation 'jakarta.persistence.MappedSuperclass'
+	annotation 'jakarta.persistence.Embeddable'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
