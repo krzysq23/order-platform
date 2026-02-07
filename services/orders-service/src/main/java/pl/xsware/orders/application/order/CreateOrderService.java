@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.xsware.orders.application.event.PaymentRequestedEvent;
+import pl.xsware.orders.application.event.PaymentRequestedEventFactory;
 import pl.xsware.orders.application.outbox.OutboxWriter;
 import pl.xsware.orders.domain.order.Currency;
 import pl.xsware.orders.domain.order.Order;
 import pl.xsware.orders.domain.order.OrderRepository;
+import pl.xsware.orders.infrastructure.messaging.kafka.PaymentRequestedKafkaPublisher;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -20,6 +22,7 @@ public class CreateOrderService implements CreateOrderUseCase{
 
     private final OrderRepository orderRepository;
     private final OutboxWriter outboxWriter;
+    private final PaymentRequestedKafkaPublisher paymentRequestedKafkaPublisher;
 
     @Override
     @Transactional
@@ -31,19 +34,8 @@ public class CreateOrderService implements CreateOrderUseCase{
 
         outboxWriter.writeAll(order.pullDomainEvents());
 
-        PaymentRequestedEvent event =
-            PaymentRequestedEvent.builder()
-                .eventId(UUID.randomUUID())
-                .eventType(PaymentRequestedEvent.TYPE)
-                .version(PaymentRequestedEvent.VERSION)
-                .occurredAt(Instant.now())
-                .data(PaymentRequestedEvent.Data.builder()
-                    .orderId(order.getId().value())
-                    .amount(order.getTotalAmount())
-                    .currency(order.getCurrency())
-                    .build()
-                )
-                .build();
+        var event = PaymentRequestedEventFactory.create(order.getId().value(), order.getTotalAmount(), order.getCurrency());
+        paymentRequestedKafkaPublisher.publish(event);
 
         log.debug("UC_CREATE_ORDER domainEvent=OrderCreatedEvent orderId={} customerId={}",
             order.getId().value(), order.getCustomerId());
