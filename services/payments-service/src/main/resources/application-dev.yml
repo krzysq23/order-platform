@@ -1,6 +1,7 @@
 # JPA + Hibernate
 spring:
 
+  #PostgresSQL
   datasource:
     url: jdbc:postgresql://localhost:5434/payments
     username: payments
@@ -16,6 +17,7 @@ spring:
       validation-timeout: 5000
       leak-detection-threshold: 20000
 
+  # JPA
   jpa:
     hibernate:
       ddl-auto: validate
@@ -26,10 +28,20 @@ spring:
       hibernate:
         format_sql: false
 
+  # Flyway
   flyway:
     enabled: true
     clean-disabled: true
     locations: classpath:db/migration
+
+  # Kafka
+  kafka:
+    bootstrap-servers: localhost:9093
+    consumer:
+      group-id: payments-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 # Metrics
 management:
@@ -39,3 +51,9 @@ management:
   tracing:
     sampling:
       probability: 1.0
+
+# Custom properties
+app:
+  kafka:
+    topics:
+      payment-requested: payments.payment-requested.v1

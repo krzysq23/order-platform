@@ -30,6 +30,8 @@ spec:
               value: orders
             - name: SPRING_DATASOURCE_PASSWORD
               value: orders
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              value: kafka:9092
           readinessProbe:
             httpGet:
               path: /actuator/health

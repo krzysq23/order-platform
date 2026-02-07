@@ -2,8 +2,10 @@ package pl.xsware.payments.application.service
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import pl.xsware.payments.application.command.CreatePaymentRequestCommand
+import pl.xsware.payments.application.command.CreatePaymentCommand
 import pl.xsware.payments.application.dto.PaymentResult
+import pl.xsware.payments.application.dto.toCreatePaymentCommand
+import pl.xsware.payments.application.event.PaymentRequestedEvent
 import pl.xsware.payments.domain.model.Payment
 import pl.xsware.payments.domain.port.PaymentRepository
 import pl.xsware.payments.infrastucture.logging.logger
@@ -16,11 +18,16 @@ class PaymentService(
 
     private val log = logger()
 
+    fun process(event: PaymentRequestedEvent) {
+        val command = event.toCreatePaymentCommand()
+        create(command);
+    }
+
     @Transactional
-    fun create(cmd: CreatePaymentRequestCommand): PaymentResult {
+    fun create(cmd: CreatePaymentCommand): PaymentResult {
 
         log.info("Creating payment for orderId={}, amount={} {}", cmd.orderId, cmd.amount, cmd.currency)
-        val payment = Payment.request(
+        val payment = Payment.createRequested(
             orderId = cmd.orderId,
             amount = cmd.amount,
             currency = cmd.currency,
