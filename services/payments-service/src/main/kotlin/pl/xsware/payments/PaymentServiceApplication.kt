@@ -1,4 +1,4 @@
-package pl.xsware.payment_service
+package pl.xsware.payments
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
