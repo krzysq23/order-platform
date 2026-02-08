@@ -17,7 +17,7 @@ class Payment (
 ) {
     companion object {
 
-        fun request(
+        fun createRequested(
             orderId: UUID,
             amount: BigDecimal,
             currency: String,

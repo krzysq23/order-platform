@@ -4,7 +4,7 @@ import jakarta.validation.Valid
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import pl.xsware.payments.application.command.CreatePaymentRequestCommand
+import pl.xsware.payments.application.command.CreatePaymentCommand
 import pl.xsware.payments.application.service.PaymentService
 import pl.xsware.payments.infrastucture.web.dto.CreatePaymentDto
 import pl.xsware.payments.infrastucture.web.dto.PaymentDto
@@ -21,7 +21,7 @@ class PaymentController(
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody dto: CreatePaymentDto): PaymentDto {
         val result = service.create(
-            CreatePaymentRequestCommand(
+            CreatePaymentCommand(
                 orderId = dto.orderId!!,
                 amount = dto.amount!!,
                 currency = dto.currency!!,

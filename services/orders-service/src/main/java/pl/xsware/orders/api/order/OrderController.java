@@ -37,7 +37,7 @@ public class OrderController {
     public ResponseEntity<Void> createOrder(@RequestBody @Valid CreateOrderRequest request) {
 
         CreateOrderCommand command = new CreateOrderCommand(
-            request.getCustomerId()
+            request.getCustomerId(), request.getTotalAmount()
         );
 
         createOrderUseCase.create(command);

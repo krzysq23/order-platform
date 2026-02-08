@@ -1,4 +1,6 @@
 package pl.xsware.orders.application.order;
 
-public record CreateOrderCommand(String customerId) {
+import java.math.BigDecimal;
+
+public record CreateOrderCommand(String customerId, BigDecimal totalAmount) {
 }
