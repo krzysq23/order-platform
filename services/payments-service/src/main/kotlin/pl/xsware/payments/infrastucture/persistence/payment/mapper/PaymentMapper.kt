@@ -1,8 +1,9 @@
-package pl.xsware.payments.infrastucture.persistence.mapper
+package pl.xsware.payments.infrastucture.persistence.payment.mapper
 
 import pl.xsware.payments.domain.model.Payment
 import pl.xsware.payments.domain.model.PaymentStatus
-import pl.xsware.payments.infrastucture.persistence.entity.PaymentEntity
+import pl.xsware.payments.infrastucture.persistence.payment.entity.PaymentEntity
+
 
 object PaymentMapper {
 

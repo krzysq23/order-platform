@@ -1,4 +1,4 @@
-package pl.xsware.payments.infrastucture.persistence.entity
+package pl.xsware.payments.infrastucture.persistence.payment.entity
 
 import jakarta.persistence.*
 import java.math.BigDecimal

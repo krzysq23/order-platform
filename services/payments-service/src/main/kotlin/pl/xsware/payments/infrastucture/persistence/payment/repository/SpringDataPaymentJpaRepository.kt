@@ -1,9 +1,9 @@
-package pl.xsware.payments.infrastucture.persistence.repository
+package pl.xsware.payments.infrastucture.persistence.payment.repository
 
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import pl.xsware.payments.infrastucture.persistence.entity.PaymentEntity
+import pl.xsware.payments.infrastucture.persistence.payment.entity.PaymentEntity
 import java.util.UUID
 
 interface SpringDataPaymentJpaRepository : JpaRepository<PaymentEntity, UUID> {

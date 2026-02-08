@@ -1,11 +1,11 @@
 package pl.xsware.payments.infrastucture.messaging.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import pl.xsware.payments.application.event.PaymentRequestedEvent
 import pl.xsware.payments.application.service.PaymentService
+import pl.xsware.payments.infrastucture.logging.logger
 
 @Component
 class PaymentRequestedKafkaListener(
@@ -13,7 +13,7 @@ class PaymentRequestedKafkaListener(
     private val paymentService: PaymentService
 ) {
 
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = logger()
 
     @KafkaListener(
         topics = ["payments.payment-requested.v1"],

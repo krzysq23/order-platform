@@ -1,10 +1,10 @@
-package pl.xsware.payments.infrastucture.persistence.repository
+package pl.xsware.payments.infrastucture.persistence.payment.repository
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Repository
 import pl.xsware.payments.domain.model.Payment
 import pl.xsware.payments.domain.port.PaymentRepository
-import pl.xsware.payments.infrastucture.persistence.mapper.PaymentMapper
+import pl.xsware.payments.infrastucture.persistence.payment.mapper.PaymentMapper
 import java.util.UUID
 
 @Repository
