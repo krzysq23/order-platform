@@ -2,12 +2,13 @@ package pl.xsware.orders.application.event;
 
 import pl.xsware.orders.domain.order.Currency;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
 public class PaymentRequestedEventFactory {
 
-    public static PaymentRequestedEvent create(UUID orderId, java.math.BigDecimal amount, Currency currency) {
+    public static PaymentRequestedEvent create(UUID orderId, BigDecimal amount, Currency currency) {
         return PaymentRequestedEvent.builder()
             .eventId(UUID.randomUUID())
             .eventType(PaymentRequestedEvent.TYPE)

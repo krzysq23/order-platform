@@ -1,7 +1,9 @@
 package pl.xsware.orders.domain.order;
 
 import lombok.Getter;
-import pl.xsware.orders.domain.shared.DomainEvent;
+import pl.xsware.orders.application.order.OrderCancelledEvent;
+import pl.xsware.orders.application.order.OrderPaidEvent;
+import pl.xsware.orders.application.order.OrderPaymentFailedEvent;
 import pl.xsware.orders.domain.shared.OutboxEvent;
 
 import java.math.BigDecimal;
@@ -28,8 +30,12 @@ public class Order {
         this.customerId = Objects.requireNonNull(customerId);
         this.status = OrderStatus.CREATED;
         this.createdAt = Instant.now();
-        this.totalAmount = totalAmount;
-        this.currency = Currency.PLN;
+
+        this.totalAmount = Objects.requireNonNull(totalAmount);
+        this.currency = Objects.requireNonNull(currency);
+
+        validateAmount(this.totalAmount);
+
         this.domainEvents.add(OrderCreatedEvent.now(this));
     }
 
@@ -45,12 +51,14 @@ public class Order {
         this.customerId = Objects.requireNonNull(customerId);
         this.status = Objects.requireNonNull(status);
         this.createdAt = Objects.requireNonNull(createdAt);
-        this.totalAmount = totalAmount;
-        this.currency = Currency.PLN;
+
+        this.totalAmount = Objects.requireNonNull(totalAmount);
+        this.currency = Objects.requireNonNull(currency);
+
+        validateAmount(this.totalAmount);
     }
 
     public static Order create(String customerId, BigDecimal totalAmount, Currency currency) {
-        if (totalAmount.scale() != 2) throw new IllegalArgumentException("totalAmount < 0");
         return new Order(OrderId.newId(), customerId, totalAmount, currency);
     }
 
@@ -71,8 +79,69 @@ public class Order {
         return events;
     }
 
-    public List<DomainEvent> peekDomainEvents() {
+    public List<OutboxEvent> peekDomainEvents() {
         return Collections.unmodifiableList(domainEvents);
     }
 
+    public void startPayment() {
+        if (status == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot start payment for cancelled order " + id.value());
+        }
+        if (status == OrderStatus.PAID) {
+            return; // idempotent
+        }
+        if (status != OrderStatus.CREATED && status != OrderStatus.PAYMENT_FAILED) {
+            throw new IllegalStateException("Invalid transition to PAYMENT_PENDING from " + status);
+        }
+        this.status = OrderStatus.PAYMENT_PENDING;
+    }
+
+    public void markPaid() {
+        if (status == OrderStatus.PAID) {
+            return;
+        }
+        if (status != OrderStatus.PAYMENT_PENDING) {
+            throw new IllegalStateException("Invalid transition to PAID from " + status);
+        }
+        this.status = OrderStatus.PAID;
+
+        this.domainEvents.add(OrderPaidEvent.now(this));
+    }
+
+    public void markPaymentFailed(String reason) {
+        if (status == OrderStatus.PAYMENT_FAILED) {
+            return;
+        }
+        if (status != OrderStatus.PAYMENT_PENDING) {
+            throw new IllegalStateException("Invalid transition to PAYMENT_FAILED from " + status);
+        }
+        this.status = OrderStatus.PAYMENT_FAILED;
+        this.domainEvents.add(OrderPaymentFailedEvent.now(this, reason));
+    }
+
+    public void cancel(String reason) {
+        if (status == OrderStatus.CANCELLED) {
+            return;
+        }
+        if (status == OrderStatus.PAID) {
+            throw new IllegalStateException("Cannot cancel PAID order " + id.value());
+        }
+        if (status != OrderStatus.CREATED
+            && status != OrderStatus.PAYMENT_PENDING
+            && status != OrderStatus.PAYMENT_FAILED) {
+            throw new IllegalStateException("Invalid transition to CANCELLED from " + status);
+        }
+
+        this.status = OrderStatus.CANCELLED;
+        this.domainEvents.add(OrderCancelledEvent.now(this, reason));
+    }
+
+    private static void validateAmount(BigDecimal totalAmount) {
+        if (totalAmount.signum() < 0) {
+            throw new IllegalArgumentException("totalAmount must be >= 0");
+        }
+        if (totalAmount.scale() != 2) {
+            throw new IllegalArgumentException("totalAmount must have scale=2");
+        }
+    }
 }
