@@ -33,6 +33,7 @@ public class PaymentRequestedKafkaPublisher {
             throw new IllegalStateException("Cannot serialize PaymentRequestedEvent", e);
         }
 
+
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, payload);
 
         record.headers().add(new RecordHeader("eventId", event.getEventId().toString().getBytes(StandardCharsets.UTF_8)));

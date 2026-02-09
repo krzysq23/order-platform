@@ -16,21 +16,31 @@ public class PaymentsEventsListener {
 
     private final OrderPaymentSagaService sagaService;
 
-    @KafkaListener(topics = "${app.kafka.topics.payment-succeeded}", groupId = "order-service")
-    public void onPaymentSucceeded(PaymentSucceededEvent event) {
-        log.info("PaymentSucceeded eventId={}, orderId={}", event.getEventId(), event.getData().getOrderId());
+    @KafkaListener(
+        topics = "${app.kafka.topics.payment-succeeded}",
+        groupId = "order-service"
+    )
+    public void onPaymentSucceeded(PaymentSucceededEvent event) {;
+        log.info("PaymentSucceeded eventId={}, orderId={}", event.eventId(), event.data().orderId());
         sagaService.handle(event);
     }
 
-    @KafkaListener(topics = "${app.kafka.topics.payment-failed}", groupId = "order-service")
+    @KafkaListener(
+        topics = "${app.kafka.topics.payment-failed}",
+        groupId = "order-service"
+    )
     public void onPaymentFailed(PaymentFailedEvent event) {
-        log.info("PaymentFailed eventId={}, orderId={}", event.getEventId(), event.getData().getOrderId());
+        log.info("PaymentFailed eventId={}, orderId={}", event.eventId(), event.data().orderId());
         sagaService.handle(event);
     }
 
-    @KafkaListener(topics = "${app.kafka.topics.payment-cancelled}", groupId = "order-service")
+    @KafkaListener(
+        topics = "${app.kafka.topics.payment-cancelled}",
+        groupId = "order-service"
+    )
     public void onPaymentCancelled(PaymentCancelledEvent event) {
-        log.info("PaymentCancelled eventId={}, orderId={}", event.getEventId(), event.getData().getOrderId());
+        log.info("PaymentCancelled eventId={}, orderId={}", event.eventId(), event.data().orderId());
         sagaService.handle(event);
     }
+
 }

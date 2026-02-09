@@ -1,6 +1,5 @@
 package pl.xsware.payments.infrastucture.messaging.kafka
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import pl.xsware.payments.application.event.PaymentRequestedEvent
@@ -10,7 +9,6 @@ import pl.xsware.payments.infrastucture.logging.logger
 
 @Component
 class PaymentRequestedKafkaListener(
-    private val objectMapper: ObjectMapper,
     private val paymentService: PaymentService,
     private val redisIdempotencyService: RedisIdempotencyService
 ) {
@@ -21,14 +19,7 @@ class PaymentRequestedKafkaListener(
         topics = ["payments.payment-requested.v1"],
         groupId = "payments-service"
     )
-    fun onMessage(payload: String) {
-
-        val event = try {
-            objectMapper.readValue(payload, PaymentRequestedEvent::class.java)
-        } catch (ex: Exception) {
-            log.error("Cannot deserialize PaymentRequestedEvent payload={}", payload, ex)
-            throw ex
-        }
+    fun onMessage(event: PaymentRequestedEvent) {
 
         log.info(
             "PAYMENT_REQUESTED_RECEIVED eventId={} orderId={}",

@@ -39,7 +39,7 @@ spring:
     bootstrap-servers: localhost:9093
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
       group-id: order-service
       auto-offset-reset: earliest
@@ -47,9 +47,10 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "pl.xsware.orders.application"
-        spring.json.use.type.headers: false
+        spring.json.use.type.headers: true
     listener:
       ack-mode: record
+
 
 # Scheduler
 orders:

@@ -1,5 +1,7 @@
 package pl.xsware.payments.infrastucture.messaging.outbox
 
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.header.internals.RecordHeader
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.core.KafkaTemplate
@@ -9,6 +11,7 @@ import pl.xsware.payments.infrastucture.idempotency.RedisLockService
 import pl.xsware.payments.infrastucture.logging.logger
 import pl.xsware.payments.infrastucture.persistence.outbox.repository.OutboxClaimService
 import pl.xsware.payments.infrastucture.persistence.outbox.repository.OutboxUpdateService
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 
 @ConditionalOnProperty(name=["outbox.publisher.enabled"], havingValue="true", matchIfMissing=true)
@@ -54,10 +57,26 @@ class OutboxPublisherJob(
             try {
                 val topic = topicResolver.resolve(item.eventType, item.eventVersion)
                 val key = item.aggregateId.toString()
+                val payload = item.payload.toString()
+                val record = ProducerRecord<String, String>(topic, key, payload)
 
-                kafkaTemplate.send(topic, key, item.payload.toString()).get()
+                record.headers().add(
+                    RecordHeader("eventId", item.id.toString().toByteArray(StandardCharsets.UTF_8))
+                )
+                record.headers().add(
+                    RecordHeader("eventType", item.eventType.toByteArray(StandardCharsets.UTF_8))
+                )
+                record.headers().add(
+                    RecordHeader("eventVersion", item.eventVersion.toString().toByteArray(StandardCharsets.UTF_8))
+                )
+                record.headers().add(
+                    RecordHeader("occurredAt", item.occurredAt.toString().toByteArray(StandardCharsets.UTF_8))
+                )
+
+                kafkaTemplate.send(record).get()
 
                 outboxUpdateService.markSent(item.id)
+
                 log.info("OUTBOX_SENT id={} topic={} type={} v={}", item.id, topic, item.eventType, item.eventVersion)
             } catch (ex: Exception) {
                 outboxUpdateService.markFailed(item.id, ex)

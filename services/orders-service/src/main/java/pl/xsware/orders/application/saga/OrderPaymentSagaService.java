@@ -9,7 +9,6 @@ import pl.xsware.orders.application.event.PaymentCancelledEvent;
 import pl.xsware.orders.application.event.PaymentFailedEvent;
 import pl.xsware.orders.application.event.PaymentSucceededEvent;
 import pl.xsware.orders.application.order.OrderPaymentUpdater;
-import pl.xsware.orders.domain.order.OrderRepository;
 import pl.xsware.orders.domain.saga.SagaState;
 import pl.xsware.orders.infrastructure.persistence.saga.ProcessedEventEntity;
 import pl.xsware.orders.infrastructure.persistence.saga.ProcessedEventRepository;
@@ -34,9 +33,9 @@ public class OrderPaymentSagaService {
 
     @Transactional
     public void handle(PaymentSucceededEvent event) {
-        if (alreadyProcessed(event.getEventId())) return;
+        if (alreadyProcessed(event.eventId())) return;
 
-        UUID orderId = event.getData().getOrderId();
+        UUID orderId = event.data().orderId();
         SagaInstanceEntity saga = loadSagaOrThrow(orderId);
 
         if (isFinal(saga.getState())) return;
@@ -45,55 +44,55 @@ public class OrderPaymentSagaService {
 
         orderPaymentUpdater.markPaid(
             orderId,
-            event.getData().getPaymentId(),
-            event.getData().getProvider(),
-            event.getData().getExternalId()
+            event.data().paymentId(),
+            event.data().provider(),
+            event.data().externalId()
         );
 
         saga.transitionTo(SagaState.PAID);
-        saga.putUuid("paymentId", event.getData().getPaymentId(), objectMapper);
-        saga.putString("provider", event.getData().getProvider(), objectMapper);
-        saga.putString("externalId", event.getData().getExternalId(), objectMapper);
+        saga.putUuid("paymentId", event.data().paymentId(), objectMapper);
+        saga.putString("provider", event.data().provider(), objectMapper);
+        saga.putString("externalId", event.data().externalId(), objectMapper);
 
         sagaRepo.save(saga);
     }
 
     @Transactional
     public void handle(PaymentFailedEvent event) {
-        if (alreadyProcessed(event.getEventId())) return;
+        if (alreadyProcessed(event.eventId())) return;
 
-        UUID orderId = event.getData().getOrderId();
+        UUID orderId = event.data().orderId();
         SagaInstanceEntity saga = loadSagaOrThrow(orderId);
 
         if (isFinal(saga.getState())) return;
 
         requireState(saga, SagaState.PAYMENT_REQUESTED);
 
-        orderPaymentUpdater.markPaymentFailed(orderId, event.getData().getReason());
+        orderPaymentUpdater.markPaymentFailed(orderId, event.data().reason());
 
         saga.transitionTo(SagaState.FAILED);
-        saga.putUuid("paymentId", event.getData().getPaymentId(), objectMapper);
-        saga.putString("reason", event.getData().getReason(), objectMapper);
+        saga.putUuid("paymentId", event.data().paymentId(), objectMapper);
+        saga.putString("reason", event.data().reason(), objectMapper);
 
         sagaRepo.save(saga);
     }
 
     @Transactional
     public void handle(PaymentCancelledEvent event) {
-        if (alreadyProcessed(event.getEventId())) return;
+        if (alreadyProcessed(event.eventId())) return;
 
-        UUID orderId = event.getData().getOrderId();
+        UUID orderId = event.data().orderId();
         SagaInstanceEntity saga = loadSagaOrThrow(orderId);
 
         if (isFinal(saga.getState())) return;
 
         requireState(saga, SagaState.PAYMENT_REQUESTED);
 
-        orderPaymentUpdater.markPaymentCancelled(orderId, event.getData().getReason());
+        orderPaymentUpdater.markPaymentCancelled(orderId, event.data().reason());
 
         saga.transitionTo(SagaState.CANCELLED);
-        saga.putUuid("paymentId", event.getData().getPaymentId(), objectMapper);
-        saga.putString("reason", event.getData().getReason(), objectMapper);
+        saga.putUuid("paymentId", event.data().paymentId(), objectMapper);
+        saga.putString("reason", event.data().reason(), objectMapper);
 
         sagaRepo.save(saga);
     }

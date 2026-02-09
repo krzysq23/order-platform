@@ -78,18 +78,18 @@ class PaymentsSagaIT {
         seedOrder(orderId);
         seedSaga(sagaId, orderId);
 
-        PaymentSucceededEvent evt = PaymentSucceededEvent.builder()
-            .eventId(eventId)
-            .eventType(PaymentSucceededEvent.TYPE)
-            .version(PaymentSucceededEvent.VERSION)
-            .occurredAt(Instant.now())
-            .data(PaymentSucceededEvent.Data.builder()
-                .orderId(orderId)
-                .paymentId(paymentId)
-                .provider("mock")
-                .externalId("ext-123")
-                .build())
-            .build();
+        PaymentSucceededEvent evt = new PaymentSucceededEvent(
+            eventId,
+            PaymentSucceededEvent.TYPE,
+            PaymentSucceededEvent.VERSION,
+            Instant.now(),
+            new PaymentSucceededEvent.Data(
+                orderId,
+                paymentId,
+                "mock",
+                "ext-123"
+            )
+        );
 
         kafkaTemplate.send("payments.payment-succeeded.v1", orderId.toString(), evt);
 
