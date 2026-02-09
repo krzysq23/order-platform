@@ -60,6 +60,14 @@ outbox:
     fixed-delay: PT15S
     initial-delay: PT10S
     lock-ttl: PT60S
+  fake-provider:
+    enabled: true
+    fixed-delay: PT2S
+    initial-delay: PT5S
+    batch-size: 10
+    success-rate: 0.8
+    provider-name: FAKE_PSP
+    lock-ttl: PT30S
 
 # Metrics
 management:
