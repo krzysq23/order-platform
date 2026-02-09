@@ -83,3 +83,6 @@ app:
   kafka:
     topics:
       payment-requested: payments.payment-requested.v1
+      payment-succeeded: payments.payment-succeeded.v1
+      payment-failed: payments.payment-failed.v1
+      payment-cancelled: payments.payment-cancelled.v1

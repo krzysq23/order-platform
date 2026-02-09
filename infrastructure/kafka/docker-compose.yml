@@ -27,6 +27,16 @@ services:
       - kafka_data:/var/lib/kafka/data
     networks: [ platform-net ]
 
+  kafka-init-topics:
+    image: apache/kafka:latest
+    container_name: kafka-init-topics
+    depends_on:
+      - kafka
+    volumes:
+      - ./init-topics.sh:/init-topics.sh
+    entrypoint: ["/bin/bash", "/init-topics.sh"]
+    networks: [ platform-net ]
+
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
