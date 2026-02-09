@@ -17,8 +17,10 @@ class JpaPaymentRepositoryAdapter(
         return payment
     }
 
-    override fun findById(id: UUID): Payment? {
-        return jpa.findById(id).orElse(null)?.let(PaymentMapper::toDomain)
+    override fun findById(id: UUID): Payment {
+        val entity = jpa.findById(id)
+            .orElseThrow { IllegalArgumentException("Payment not found: $id") }
+        return PaymentMapper.toDomain(entity)
     }
 
     override fun findByOrderId(orderId: UUID): Payment? {

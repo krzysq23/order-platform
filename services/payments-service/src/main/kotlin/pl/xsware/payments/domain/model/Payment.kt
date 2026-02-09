@@ -1,6 +1,7 @@
 package pl.xsware.payments.domain.model
 
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 import java.util.UUID
 
@@ -10,8 +11,8 @@ class Payment (
     var status: PaymentStatus,
     val amount: BigDecimal,
     val currency: String,
-    val provider: String?,
-    val externalId: String?,
+    var provider: String?,
+    var externalId: String?,
     val createdAt: Instant,
     var updatedAt: Instant
 ) {
@@ -27,6 +28,7 @@ class Payment (
 
             require(currency.isNotBlank()) { "currency cannot be blank" }
             require(amount > BigDecimal.ZERO) { "amount must be > 0" }
+            require(amount.scale() <= 2) { "amount scale must be <= 2" }
 
             val now = Instant.now()
             return Payment(
@@ -43,15 +45,49 @@ class Payment (
         }
     }
 
-    fun markAuthorized() {
-        require(status == PaymentStatus.REQUESTED) { "Cannot authorize payment in status=$status" }
+    fun markAuthorized(
+        provider: String,
+        externalId: String? = null,
+        clock: Clock = Clock.systemUTC()
+    ) {
+        require(status == PaymentStatus.REQUESTED) {
+            "Cannot authorize payment in status=$status"
+        }
+        require(provider.isNotBlank()) { "provider cannot be blank" }
+
         status = PaymentStatus.AUTHORIZED
-        updatedAt = Instant.now()
+        this.provider = provider
+        if (externalId != null) this.externalId = externalId
+        updatedAt = Instant.now(clock)
     }
 
-    fun markFailed() {
-        if (status == PaymentStatus.CAPTURED) error("Cannot fail captured payment")
+    fun markCaptured(
+        provider: String,
+        externalId: String,
+        clock: Clock = Clock.systemUTC()
+    ) {
+        require(status == PaymentStatus.AUTHORIZED) {
+            "Cannot capture payment in status=$status"
+        }
+        require(provider.isNotBlank()) { "provider cannot be blank" }
+        require(externalId.isNotBlank()) { "externalId cannot be blank" }
+        status = PaymentStatus.CAPTURED
+        this.provider = provider
+        this.externalId = externalId
+        updatedAt = Instant.now(clock)
+    }
+
+    fun markFailed(clock: Clock = Clock.systemUTC()) {
+        require(status != PaymentStatus.CAPTURED) { "Cannot fail captured payment" }
+        require(status != PaymentStatus.CANCELLED) { "Cannot fail cancelled payment" }
         status = PaymentStatus.FAILED
-        updatedAt = Instant.now()
+        updatedAt = Instant.now(clock)
+    }
+
+    fun markCancelled(clock: Clock = Clock.systemUTC()) {
+        require(status != PaymentStatus.CAPTURED) { "Cannot cancel captured payment" }
+        require(status != PaymentStatus.FAILED) { "Cannot cancel failed payment" }
+        status = PaymentStatus.CANCELLED
+        updatedAt = Instant.now(clock)
     }
 }

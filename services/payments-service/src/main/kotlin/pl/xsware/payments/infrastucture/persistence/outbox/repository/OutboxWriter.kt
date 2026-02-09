@@ -1,9 +1,9 @@
 package pl.xsware.payments.infrastucture.persistence.outbox.repository
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Component
 import pl.xsware.payments.infrastucture.persistence.outbox.entity.OutboxEntity
 import pl.xsware.payments.infrastucture.persistence.outbox.entity.OutboxStatus
-import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
 
