@@ -47,12 +47,19 @@ spring:
       properties:
         enable.idempotence: true
 
+  # Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 # Scheduler
 outbox:
   publisher:
     enabled: true
     fixed-delay: PT15S
     initial-delay: PT10S
+    lock-ttl: PT60S
 
 # Metrics
 management:

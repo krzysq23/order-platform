@@ -5,20 +5,21 @@ import jakarta.persistence.LockModeType
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import pl.xsware.payments.infrastucture.persistence.outbox.entity.OutboxEntity
+import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @Service
 class OutboxClaimService(
-    private val em: EntityManager
+    private val em: EntityManager,
+    private val clock: Clock
 ) {
 
     @Transactional
     fun claimBatch(limit: Int, lockSeconds: Long = 30): List<OutboxEntity> {
-        val now = Instant.now()
+        val now = Instant.now(clock)
         val lockUntil = now.plus(lockSeconds, ChronoUnit.SECONDS)
 
-        // Pessimistic lock na rekordach, które bierzemy
         val items = em.createQuery(
             """
             SELECT o FROM OutboxEntity o

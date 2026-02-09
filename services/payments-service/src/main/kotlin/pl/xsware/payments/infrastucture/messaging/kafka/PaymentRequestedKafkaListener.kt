@@ -5,12 +5,14 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import pl.xsware.payments.application.event.PaymentRequestedEvent
 import pl.xsware.payments.application.service.PaymentService
+import pl.xsware.payments.infrastucture.idempotency.RedisIdempotencyService
 import pl.xsware.payments.infrastucture.logging.logger
 
 @Component
 class PaymentRequestedKafkaListener(
     private val objectMapper: ObjectMapper,
-    private val paymentService: PaymentService
+    private val paymentService: PaymentService,
+    private val redisIdempotencyService: RedisIdempotencyService
 ) {
 
     private val log = logger()
@@ -33,6 +35,11 @@ class PaymentRequestedKafkaListener(
             event.eventId,
             event.data.orderId
         )
+
+        if (!redisIdempotencyService.firstTime(event.eventId)) {
+            log.info("Duplicate event ignored (redis) eventId={}", event.eventId)
+            return
+        }
 
         paymentService.process(event)
     }

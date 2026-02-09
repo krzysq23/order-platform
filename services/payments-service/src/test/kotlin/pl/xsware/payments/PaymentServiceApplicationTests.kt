@@ -1,4 +1,4 @@
-package pl.xsware.payment_service
+package pl.xsware.payments
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

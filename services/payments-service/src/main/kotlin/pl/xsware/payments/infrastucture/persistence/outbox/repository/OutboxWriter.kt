@@ -1,5 +1,6 @@
 package pl.xsware.payments.infrastucture.persistence.outbox.repository
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Component
 import pl.xsware.payments.infrastucture.persistence.outbox.entity.OutboxEntity
@@ -20,7 +21,8 @@ class OutboxWriter(
         occurredAt: Instant,
         payloadObj: Any
     ) {
-        val payloadJson = objectMapper.writeValueAsString(payloadObj)
+
+        val payloadNode = objectMapper.valueToTree<JsonNode>(payloadObj)
 
         outboxRepo.save(
             OutboxEntity(
@@ -30,7 +32,7 @@ class OutboxWriter(
                 eventType = eventType,
                 eventVersion = eventVersion,
                 occurredAt = occurredAt,
-                payload = payloadJson,
+                payload = payloadNode,
                 status = OutboxStatus.PENDING
             )
         )

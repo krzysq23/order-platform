@@ -1,11 +1,14 @@
 package pl.xsware.payments.infrastucture.persistence.outbox.entity
 
+import com.fasterxml.jackson.databind.JsonNode
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.Instant
 import java.util.UUID
 
@@ -31,8 +34,9 @@ class OutboxEntity(
     @Column(name = "occurred_at", nullable = false)
     val occurredAt: Instant,
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
-    val payload: String,
+    val payload: JsonNode,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
