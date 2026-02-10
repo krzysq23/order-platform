@@ -91,3 +91,6 @@ app:
       payment-succeeded: payments.payment-succeeded.v1
       payment-failed: payments.payment-failed.v1
       payment-cancelled: payments.payment-cancelled.v1
+      reserve-stock-requested: inventory.reserve-stock-requested.v1
+      stock-reserved: inventory.stock-reserved.v1
+      stock-reservation-failed: inventory.stock-reservation-failed.v1

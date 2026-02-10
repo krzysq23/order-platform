@@ -6,15 +6,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.xsware.orders.application.event.PaymentRequestedEvent;
 import pl.xsware.orders.application.event.PaymentRequestedEventFactory;
+import pl.xsware.orders.application.event.ReserveStockRequestedEvent;
 import pl.xsware.orders.application.outbox.OutboxWriter;
 import pl.xsware.orders.application.saga.OrderPaymentSagaService;
 import pl.xsware.orders.domain.order.Currency;
 import pl.xsware.orders.domain.order.Order;
 import pl.xsware.orders.domain.order.OrderRepository;
+import pl.xsware.orders.domain.saga.SagaState;
 import pl.xsware.orders.infrastructure.persistence.saga.SagaInstanceEntity;
 import pl.xsware.orders.infrastructure.persistence.saga.SagaInstanceRepository;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Service
@@ -31,21 +35,9 @@ public class CreateOrderService implements CreateOrderUseCase{
     @Transactional
     public void create(CreateOrderCommand command) {
 
-        // TODO: Add counting total amount from product list
         Order order = Order.create(command.customerId(), command.totalAmount(), Currency.PLN);
 
-        order.startPayment();
-
         orderRepository.save(order);
-
-        PaymentRequestedEvent event =
-            PaymentRequestedEventFactory.create(
-                order.getId().value(),
-                order.getTotalAmount(),
-                order.getCurrency()
-            );
-
-        outboxWriter.write(event);
 
         SagaInstanceEntity saga = SagaInstanceEntity.start(
             UUID.randomUUID(),
@@ -53,9 +45,21 @@ public class CreateOrderService implements CreateOrderUseCase{
             order.getId().value().toString(),
             objectMapper
         );
+        saga.transitionTo(SagaState.INVENTORY_REQUESTED);
+
         sagaRepo.save(saga);
 
-        log.debug("UC_CREATE_ORDER domainEvent=OrderCreatedEvent orderId={} customerId={}",
+        ReserveStockRequestedEvent reserveEvent = ReserveStockRequestedEvent.of(
+            order.getId().value(),
+            saga.getSagaId(),
+            Instant.now().plus(15, ChronoUnit.MINUTES),
+            command.items().stream()
+                .map(i -> new ReserveStockRequestedEvent.Item(i.sku(), i.quantity()))
+                .toList()
+        );
+        outboxWriter.write(reserveEvent);
+
+        log.debug("UC_CREATE_ORDER inventoryRequested orderId={} customerId={}",
             order.getId().value(), order.getCustomerId());
     }
 }

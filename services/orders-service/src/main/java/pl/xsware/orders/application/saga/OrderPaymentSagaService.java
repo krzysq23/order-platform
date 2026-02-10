@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.xsware.orders.application.event.PaymentCancelledEvent;
-import pl.xsware.orders.application.event.PaymentFailedEvent;
-import pl.xsware.orders.application.event.PaymentSucceededEvent;
+import pl.xsware.orders.application.event.*;
 import pl.xsware.orders.application.order.OrderPaymentUpdater;
+import pl.xsware.orders.application.outbox.OutboxWriter;
+import pl.xsware.orders.domain.order.Order;
+import pl.xsware.orders.domain.order.OrderId;
+import pl.xsware.orders.domain.order.OrderRepository;
 import pl.xsware.orders.domain.saga.SagaState;
 import pl.xsware.orders.infrastructure.persistence.saga.ProcessedEventEntity;
 import pl.xsware.orders.infrastructure.persistence.saga.ProcessedEventRepository;
@@ -27,6 +29,11 @@ public class OrderPaymentSagaService {
 
     private final SagaInstanceRepository sagaRepo;
     private final ProcessedEventRepository processedRepo;
+
+    private final OrderInventoryUpdater orderInventoryUpdater;
+    private final OutboxWriter outboxWriter;
+
+    private final OrderRepository orderRepository;
 
     private final OrderPaymentUpdater orderPaymentUpdater;
     private final ObjectMapper objectMapper;
@@ -97,6 +104,65 @@ public class OrderPaymentSagaService {
         sagaRepo.save(saga);
     }
 
+    @Transactional
+    public void handle(StockReservedEvent event) {
+        if (alreadyProcessed(event.eventId())) return;
+
+        UUID orderId = event.data().orderId();
+        SagaInstanceEntity saga = loadSagaOrThrow(orderId);
+
+        if (isFinal(saga.getState())) return;
+
+        requireState(saga, SagaState.INVENTORY_REQUESTED);
+
+        orderInventoryUpdater.markInventoryReserved(orderId, event.data());
+
+        saga.putUuid("inventoryReservationId", event.data().reservationId(), objectMapper);
+        saga.transitionTo(SagaState.INVENTORY_RESERVED);
+
+        OrderId oid = OrderId.of(orderId);
+        Order order = orderRepository.findById(oid)
+            .orElseThrow(() ->
+                new IllegalStateException("Order not found: " + oid));
+
+        order.startPayment();
+        orderRepository.save(order);
+
+        PaymentRequestedEvent paymentRequested = PaymentRequestedEventFactory.create(
+            order.getId().value(),
+            order.getTotalAmount(),
+            order.getCurrency()
+        );
+
+        outboxWriter.write(paymentRequested);
+
+        saga.transitionTo(SagaState.PAYMENT_REQUESTED);
+
+        sagaRepo.save(saga);
+        markProcessed(event.eventId());
+    }
+
+    @Transactional
+    public void handle(StockReservationFailedEvent event) {
+        if (alreadyProcessed(event.eventId())) return;
+
+        UUID orderId = event.data().orderId();
+        SagaInstanceEntity saga = loadSagaOrThrow(orderId);
+
+        if (isFinal(saga.getState())) return;
+
+        requireState(saga, SagaState.INVENTORY_REQUESTED);
+
+        orderInventoryUpdater.markInventoryFailed(orderId, event.data().reason());
+
+        saga.transitionTo(SagaState.CANCELLED);
+        saga.putUuid("inventoryReservationId", event.data().reservationId(), objectMapper);
+        saga.putString("reason", event.data().reason(), objectMapper);
+
+        sagaRepo.save(saga);
+        markProcessed(event.eventId());
+    }
+
     private boolean alreadyProcessed(UUID eventId) {
         try {
             processedRepo.save(ProcessedEventEntity.now(eventId));
@@ -124,5 +190,9 @@ public class OrderPaymentSagaService {
                 ", actual=" + saga.getState() +
                 ", sagaId=" + saga.getSagaId());
         }
+    }
+
+    private void markProcessed(UUID eventId) {
+        processedRepo.save(ProcessedEventEntity.now(eventId));
     }
 }

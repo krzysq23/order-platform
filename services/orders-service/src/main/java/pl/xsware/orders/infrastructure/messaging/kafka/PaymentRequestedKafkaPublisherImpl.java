@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.xsware.orders.application.event.PaymentRequestedEvent;
+import pl.xsware.orders.application.event.StockReservedEvent;
 import pl.xsware.orders.application.outbox.OutboxPublisher;
 
 @Slf4j(topic = "OUTBOX")
@@ -19,5 +20,13 @@ public class PaymentRequestedKafkaPublisherImpl implements OutboxPublisher {
         paymentPublisher.publish(event);
 
         log.info("OUTBOX_PUBLISH_PAYMENT_REQUEST eventId={} type={} payload={}", event.eventId(), event.eventType(), event.data().toString());
+    }
+
+    @Override
+    public void publish(StockReservedEvent event) {
+
+        paymentPublisher.publish(event);
+
+        log.info("OUTBOX_PUBLISH_STOCK_RESERVED eventId={} type={} payload={}", event.eventId(), event.eventType(), event.data().toString());
     }
 }
