@@ -45,6 +45,9 @@ dependencies {
     runtimeOnly "org.postgresql:postgresql"
     testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
 
+    // Kafka
+    implementation "org.springframework.boot:spring-boot-starter-kafka"
+
     // metrics + actuator
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "io.micrometer:micrometer-registry-prometheus"

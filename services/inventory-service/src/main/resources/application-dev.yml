@@ -34,6 +34,13 @@ spring:
     clean-disabled: true
     locations: classpath:db/migration
 
+  # Kafka
+  kafka:
+    bootstrap-servers: localhost:9093
+    consumer:
+      group-id: order-service
+      auto-offset-reset: earliest
+
 # Swagger
 springdoc:
   api-docs:
@@ -55,3 +62,9 @@ management:
     export:
       otlp:
         enabled: false
+
+# Custom properties
+app:
+  kafka:
+    topics:
+      reserve-stock-requested: inventory.reserve-stock-requested.v1
