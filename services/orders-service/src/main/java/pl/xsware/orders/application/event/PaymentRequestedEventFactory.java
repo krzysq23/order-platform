@@ -6,19 +6,23 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-public class PaymentRequestedEventFactory {
+public final class PaymentRequestedEventFactory {
 
-    public static PaymentRequestedEvent create(UUID orderId, BigDecimal amount, Currency currency) {
-        return PaymentRequestedEvent.builder()
-            .eventId(UUID.randomUUID())
-            .eventType(PaymentRequestedEvent.TYPE)
-            .version(PaymentRequestedEvent.VERSION)
-            .occurredAt(Instant.now())
-            .data(PaymentRequestedEvent.Data.builder()
-                .orderId(orderId)
-                .amount(amount)
-                .currency(currency)
-                .build())
-            .build();
+    public static PaymentRequestedEvent create(
+        UUID orderId,
+        BigDecimal amount,
+        Currency currency
+    ) {
+        return new PaymentRequestedEvent(
+            UUID.randomUUID(),
+            PaymentRequestedEvent.TYPE,
+            PaymentRequestedEvent.VERSION,
+            Instant.now(),
+            new PaymentRequestedEvent.Data(
+                orderId,
+                amount,
+                currency
+            )
+        );
     }
 }

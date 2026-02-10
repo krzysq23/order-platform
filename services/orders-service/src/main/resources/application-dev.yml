@@ -44,7 +44,7 @@ spring:
       group-id: order-service
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       properties:
         spring.json.trusted.packages: "pl.xsware.orders.application"
         spring.json.use.type.headers: true
@@ -57,8 +57,8 @@ orders:
   outbox:
     dispatcher:
       enabled: true
-      fixed-delay: PT15S
-      initial-delay: PT10S
+      fixed-delay: PT2S
+      initial-delay: PT5S
     claim-mode: SKIP_LOCKED  # or ADVISORY
 
 # Metrics

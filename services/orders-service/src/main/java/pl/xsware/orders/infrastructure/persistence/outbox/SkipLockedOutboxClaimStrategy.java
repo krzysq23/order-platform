@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import pl.xsware.orders.application.event.PaymentRequestedEvent;
 import pl.xsware.orders.application.outbox.OutboxClaimStrategy;
 
 import java.time.*;
@@ -49,6 +50,7 @@ public class SkipLockedOutboxClaimStrategy implements OutboxClaimStrategy {
                 SELECT id
                 FROM outbox_messages
                 WHERE processed_at IS NULL
+                  AND event_type IN (:eventTypes)
                   AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
                   AND (locked_at IS NULL OR locked_at < :lockExpiredBefore)
                 ORDER BY occurred_at
@@ -68,6 +70,7 @@ public class SkipLockedOutboxClaimStrategy implements OutboxClaimStrategy {
         params.put("lockExpiredBefore", lockExpiredBefore);
         params.put("lockedBy", lockedBy);
         params.put("batchSize", batchSize);
+        params.put("eventTypes", List.of(PaymentRequestedEvent.TYPE));
 
         return jdbc.query(sql, params, (rs, rowNum) -> UUID.fromString(rs.getString("id")));
     }

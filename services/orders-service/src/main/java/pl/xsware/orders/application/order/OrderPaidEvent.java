@@ -1,6 +1,5 @@
 package pl.xsware.orders.application.order;
 
-import pl.xsware.orders.domain.order.Order;
 import pl.xsware.orders.domain.shared.OutboxEvent;
 
 import java.time.Instant;
@@ -17,19 +16,19 @@ public record OrderPaidEvent(
     public static final String TYPE = "OrderPaid";
     public static final int VERSION = 1;
 
-    public static OrderPaidEvent now(Order order) {
+    public static OrderPaidEvent of(UUID orderId) {
         return new OrderPaidEvent(
             UUID.randomUUID(),
             TYPE,
             VERSION,
             Instant.now(),
-            order.getId().toString()
+            orderId.toString()
         );
     }
 
     @Override
     public String aggregateType() {
-        return "Order";
+        return "ORDER";
     }
 
     @Override

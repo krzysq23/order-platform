@@ -63,8 +63,8 @@ spring:
 outbox:
   publisher:
     enabled: true
-    fixed-delay: PT15S
-    initial-delay: PT10S
+    fixed-delay: PT2S
+    initial-delay: PT5S
     lock-ttl: PT60S
   fake-provider:
     enabled: true

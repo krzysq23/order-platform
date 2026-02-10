@@ -1,6 +1,8 @@
 package pl.xsware.orders.application.outbox;
 
+import pl.xsware.orders.application.event.PaymentRequestedEvent;
+
 public interface OutboxPublisher {
 
-    void publish(String messageId, String eventType, String payload);
+    void publish(PaymentRequestedEvent event);
 }

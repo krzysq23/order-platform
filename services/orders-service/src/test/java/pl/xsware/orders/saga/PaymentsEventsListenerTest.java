@@ -10,6 +10,7 @@ import pl.xsware.orders.application.event.PaymentFailedEvent;
 import pl.xsware.orders.application.event.PaymentSucceededEvent;
 import pl.xsware.orders.application.saga.OrderPaymentSagaService;
 import pl.xsware.orders.infrastructure.messaging.kafka.PaymentsEventsListener;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -22,11 +23,14 @@ class PaymentsEventsListenerTest {
     @Mock
     private OrderPaymentSagaService sagaService;
 
+    private ObjectMapper objectMapper;
+
     private PaymentsEventsListener listener;
 
     @BeforeEach
     void setUp() {
-        listener = new PaymentsEventsListener(sagaService);
+        objectMapper = new ObjectMapper();
+        listener = new PaymentsEventsListener(sagaService, objectMapper);
     }
 
     @Test
@@ -50,7 +54,7 @@ class PaymentsEventsListenerTest {
         );
 
         // when
-        listener.onPaymentSucceeded(event);
+        listener.onPaymentSucceeded(objectMapper.writeValueAsString(event));
 
         // then
         verify(sagaService, times(1)).handle(event);
@@ -73,7 +77,7 @@ class PaymentsEventsListenerTest {
         );
 
         // when
-        listener.onPaymentFailed(event);
+        listener.onPaymentFailed(objectMapper.writeValueAsString(event));
 
         // then
         verify(sagaService, times(1)).handle(event);
@@ -96,7 +100,7 @@ class PaymentsEventsListenerTest {
         );
 
         // when
-        listener.onPaymentCancelled(event);
+        listener.onPaymentCancelled(objectMapper.writeValueAsString(event));
 
         // then
         verify(sagaService, times(1)).handle(event);

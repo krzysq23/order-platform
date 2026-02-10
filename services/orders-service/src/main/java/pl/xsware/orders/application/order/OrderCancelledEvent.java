@@ -1,6 +1,5 @@
 package pl.xsware.orders.application.order;
 
-import pl.xsware.orders.domain.order.Order;
 import pl.xsware.orders.domain.shared.OutboxEvent;
 
 import java.time.Instant;
@@ -18,20 +17,20 @@ public record OrderCancelledEvent(
     public static final String TYPE = "OrderCancelled";
     public static final int VERSION = 1;
 
-    public static OrderCancelledEvent now(Order order, String reason) {
+    public static OrderCancelledEvent of(UUID orderId, String reason) {
         return new OrderCancelledEvent(
             UUID.randomUUID(),
             TYPE,
             VERSION,
             Instant.now(),
-            order.getId().toString(),
+            orderId.toString(),
             reason
         );
     }
 
     @Override
     public String aggregateType() {
-        return "Order";
+        return "ORDER";
     }
 
     @Override

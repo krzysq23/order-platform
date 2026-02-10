@@ -18,20 +18,20 @@ public record OrderPaymentFailedEvent(
     public static final String TYPE = "OrderPaymentFailed";
     public static final int VERSION = 1;
 
-    public static OrderPaymentFailedEvent now(Order order, String reason) {
+    public static OrderPaymentFailedEvent of(UUID orderId, String reason) {
         return new OrderPaymentFailedEvent(
             UUID.randomUUID(),
             TYPE,
             VERSION,
             Instant.now(),
-            order.getId().toString(),
+            orderId.toString(),
             reason
         );
     }
 
     @Override
     public String aggregateType() {
-        return "Order";
+        return "ORDER";
     }
 
     @Override

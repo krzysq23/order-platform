@@ -27,7 +27,7 @@ public class OrderPaymentUpdaterImpl implements OrderPaymentUpdater {
 
         orderRepository.save(order);
 
-        outboxWriter.writeAll(order.pullDomainEvents());
+        outboxWriter.write(OrderPaidEvent.of(orderId));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class OrderPaymentUpdaterImpl implements OrderPaymentUpdater {
         order.cancel(reason != null ? reason : "PAYMENT_FAILED");
 
         orderRepository.save(order);
-        outboxWriter.writeAll(order.pullDomainEvents());
+        outboxWriter.write(OrderPaymentFailedEvent.of(orderId, reason));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class OrderPaymentUpdaterImpl implements OrderPaymentUpdater {
         order.cancel(reason != null ? reason : "PAYMENT_CANCELLED");
 
         orderRepository.save(order);
-        outboxWriter.writeAll(order.pullDomainEvents());
+        outboxWriter.write(OrderCancelledEvent.of(orderId, reason));
 
     }
 }
