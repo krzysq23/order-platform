@@ -23,10 +23,12 @@ spring:
       ddl-auto: validate
       format_sql: false
     open-in-view: false
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: false
+        highlight_sql: false
+        use_sql_comments: false
 
   # Flyway
   flyway:
@@ -40,6 +42,15 @@ spring:
     consumer:
       group-id: order-service
       auto-offset-reset: earliest
+
+# Scheduler
+orders:
+  outbox:
+    dispatcher:
+      enabled: true
+      fixed-delay: PT2S
+      initial-delay: PT5S
+    claim-mode: SKIP_LOCKED  # or ADVISORY
 
 # Swagger
 springdoc:
@@ -68,3 +79,5 @@ app:
   kafka:
     topics:
       reserve-stock-requested: inventory.reserve-stock-requested.v1
+      stock-reserved: inventory.stock-reserved.v1
+      stock-reservation-failed: inventory.stock-reservation-failed.v1
