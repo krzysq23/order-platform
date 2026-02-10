@@ -34,6 +34,15 @@ spring:
     clean-disabled: true
     locations: classpath:db/migration
 
+# Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui
+    operationsSorter: method
+    tagsSorter: alpha
+
 # Metrics
 management:
   endpoint:
