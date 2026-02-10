@@ -61,6 +61,15 @@ orders:
       initial-delay: PT5S
     claim-mode: SKIP_LOCKED  # or ADVISORY
 
+# Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui
+    operationsSorter: method
+    tagsSorter: alpha
+
 # Metrics
 management:
   endpoint:

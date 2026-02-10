@@ -50,6 +50,9 @@ dependencies {
 	// logstash
 	implementation "net.logstash.logback:logstash-logback-encoder:9.0"
 
+    // Swagger
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${swaggerVersion}"
+
 	// Tests
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.boot:spring-boot-starter-data-jpa-test"
