@@ -9,6 +9,7 @@ import pl.xsware.orders.application.event.PaymentCancelledEvent;
 import pl.xsware.orders.application.event.PaymentFailedEvent;
 import pl.xsware.orders.application.event.PaymentSucceededEvent;
 import pl.xsware.orders.application.saga.OrderPaymentSagaService;
+import pl.xsware.orders.infrastructure.messaging.kafka.PayloadDataUtils;
 import pl.xsware.orders.infrastructure.messaging.kafka.PaymentsEventsListener;
 import tools.jackson.databind.ObjectMapper;
 
@@ -27,10 +28,12 @@ class PaymentsEventsListenerTest {
 
     private PaymentsEventsListener listener;
 
+    private PayloadDataUtils payloadDataUtils;
+
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        listener = new PaymentsEventsListener(sagaService, objectMapper);
+        listener = new PaymentsEventsListener(sagaService, payloadDataUtils);
     }
 
     @Test
