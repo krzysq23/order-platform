@@ -32,6 +32,10 @@ public class ProductEntity {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_code", referencedColumnName = "code", nullable = false)
+    private ProductCategoryEntity category;
+
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
