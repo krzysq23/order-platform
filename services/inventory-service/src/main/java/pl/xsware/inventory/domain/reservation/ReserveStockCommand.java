@@ -20,14 +20,10 @@ public record ReserveStockCommand(
         if (items.isEmpty()) throw new IllegalArgumentException("items cannot be empty");
     }
 
-    public record Item(Sku sku, String warehouse, Quantity quantity) {
+    public record Item(Sku sku, Quantity quantity) {
         public Item {
             Objects.requireNonNull(sku, "sku");
-            Objects.requireNonNull(warehouse, "warehouse");
             Objects.requireNonNull(quantity, "quantity");
-            var w = warehouse.trim();
-            if (w.isEmpty() || w.length() > 32) throw new IllegalArgumentException("Invalid warehouse");
-            warehouse = w;
         }
     }
 }

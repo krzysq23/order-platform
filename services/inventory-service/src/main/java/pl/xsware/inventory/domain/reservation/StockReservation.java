@@ -37,16 +37,16 @@ public class StockReservation {
         var r = new StockReservation(reservationId, cmd.orderId());
         r.correlationId = cmd.correlationId();
         r.expiresAt = cmd.expiresAt();
-        cmd.items().forEach(i -> r.addLine(i.sku(), i.warehouse(), i.quantity()));
+        cmd.items().forEach(i -> r.addLine(i.sku(), i.quantity()));
         return r;
     }
 
-    public void addLine(Sku sku, String warehouse, Quantity qty) {
+    public void addLine(Sku sku, Quantity qty) {
         if (status != REQUESTED) throw new ReservationStateException("Cannot add lines in status " + status);
-        lines.add(new Line(sku, warehouse, qty));
+        lines.add(new Line(sku, qty));
     }
 
-    public void markReserved() {
+    public void markReserved(String warehouse) {
         requireStatus(REQUESTED);
         status = RESERVED;
 
@@ -56,7 +56,7 @@ public class StockReservation {
             orderId,
             id,
             lines.stream()
-                .map(l -> new StockReservedDomainEvent.Line(l.sku.value(), l.warehouse, l.quantity.value()))
+                .map(l -> new StockReservedDomainEvent.Line(l.sku.value(), warehouse, l.quantity.value()))
                 .toList()
         ));
     }
@@ -87,5 +87,5 @@ public class StockReservation {
         return copy;
     }
 
-    public record Line(Sku sku, String warehouse, Quantity quantity) {}
+    public record Line(Sku sku, Quantity quantity) {}
 }
