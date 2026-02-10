@@ -23,6 +23,9 @@ public class ProductEntity {
     @Column(name = "id", nullable = false)
     private UUID id;
 
+    /*
+        (Stock Keeping Unit) - biznesowy identyfikator produktu, np. SKU-IPHONE-15-BLACK-128
+     */
     @Column(name = "sku", nullable = false, length = 64)
     private String sku;
 
