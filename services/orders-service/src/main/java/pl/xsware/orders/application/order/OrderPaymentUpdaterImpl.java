@@ -23,7 +23,7 @@ public class OrderPaymentUpdaterImpl implements OrderPaymentUpdater {
         Order order = orderRepository.findById(OrderId.of(orderId))
             .orElseThrow(() -> new IllegalStateException("Order not found: " + orderId));
 
-        order.startPayment();
+        order.markPaid();
 
         orderRepository.save(order);
 
@@ -36,7 +36,7 @@ public class OrderPaymentUpdaterImpl implements OrderPaymentUpdater {
         Order order = orderRepository.findById(OrderId.of(orderId))
             .orElseThrow(() -> new IllegalStateException("Order not found: " + orderId));
 
-        order.cancel(reason != null ? reason : "PAYMENT_FAILED");
+        order.markPaymentFailed(reason != null ? reason : "PAYMENT_FAILED");
 
         orderRepository.save(order);
         outboxWriter.write(OrderPaymentFailedEvent.of(orderId, reason));

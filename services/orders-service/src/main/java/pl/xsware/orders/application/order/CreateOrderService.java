@@ -33,6 +33,9 @@ public class CreateOrderService implements CreateOrderUseCase{
 
         // TODO: Add counting total amount from product list
         Order order = Order.create(command.customerId(), command.totalAmount(), Currency.PLN);
+
+        order.startPayment();
+
         orderRepository.save(order);
 
         PaymentRequestedEvent event =
@@ -43,7 +46,6 @@ public class CreateOrderService implements CreateOrderUseCase{
             );
 
         outboxWriter.write(event);
-
 
         SagaInstanceEntity saga = SagaInstanceEntity.start(
             UUID.randomUUID(),
