@@ -26,5 +26,6 @@ create_topic payments.payment-requested.v1
 create_topic payments.payment-succeeded.v1
 create_topic payments.payment-failed.v1
 create_topic payments.payment-cancelled.v1
+create_topic inventory.reserve-stock-requested.v1
 
 echo "Kafka topics initialized"
