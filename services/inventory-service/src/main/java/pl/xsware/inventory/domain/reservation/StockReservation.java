@@ -33,6 +33,24 @@ public class StockReservation {
         this.status = REQUESTED;
     }
 
+    public static StockReservation rehydrate(
+        UUID id,
+        UUID orderId,
+        StockReservationStatus status,
+        UUID correlationId,
+        Instant expiresAt,
+        String reason,
+        List<Line> lines
+    ) {
+        var r = new StockReservation(id, orderId);
+        r.status = status;
+        r.correlationId = correlationId;
+        r.expiresAt = expiresAt;
+        r.reason = reason;
+        r.lines.addAll(lines);
+        return r;
+    }
+
     public static StockReservation start(ReserveStockCommand cmd, UUID reservationId) {
         var r = new StockReservation(reservationId, cmd.orderId());
         r.correlationId = cmd.correlationId();
@@ -42,7 +60,9 @@ public class StockReservation {
     }
 
     public void addLine(Sku sku, Quantity qty) {
-        if (status != REQUESTED) throw new ReservationStateException("Cannot add lines in status " + status);
+        if (status != REQUESTED) {
+            throw new ReservationStateException("Cannot add lines in status " + status);
+        }
         lines.add(new Line(sku, qty));
     }
 
@@ -56,7 +76,9 @@ public class StockReservation {
             orderId,
             id,
             lines.stream()
-                .map(l -> new StockReservedDomainEvent.Line(l.sku.value(), warehouse, l.quantity.value()))
+                .map(l -> new StockReservedDomainEvent.Line(
+                    l.sku.value(), warehouse, l.quantity.value()
+                ))
                 .toList()
         ));
     }
@@ -77,7 +99,9 @@ public class StockReservation {
 
     private void requireStatus(StockReservationStatus expected) {
         if (status != expected) {
-            throw new ReservationStateException("Expected status " + expected + " but was " + status);
+            throw new ReservationStateException(
+                "Expected status " + expected + " but was " + status
+            );
         }
     }
 
