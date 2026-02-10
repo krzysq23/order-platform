@@ -10,6 +10,12 @@ data class PaymentRequestedEvent(
     val occurredAt: Instant,
     val data: Data
 ) {
+
+    companion object {
+        const val TYPE = "PaymentRequested"
+        const val VERSION = 1
+    }
+
     data class Data(
         val orderId: UUID,
         val amount: String,

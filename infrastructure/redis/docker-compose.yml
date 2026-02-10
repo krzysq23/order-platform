@@ -15,9 +15,26 @@ services:
       retries: 30
     networks: [platform-net]
 
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports: ["5540:5540"]
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks: [platform-net]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5540/"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
 networks:
   platform-net:
     external: true
 
 volumes:
   redis_data:
+  redisinsight_data:

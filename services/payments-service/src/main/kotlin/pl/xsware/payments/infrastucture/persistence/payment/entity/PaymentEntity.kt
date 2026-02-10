@@ -1,6 +1,7 @@
-package pl.xsware.payments.infrastucture.persistence.entity
+package pl.xsware.payments.infrastucture.persistence.payment.entity
 
 import jakarta.persistence.*
+import pl.xsware.payments.domain.model.PaymentStatus
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
@@ -15,8 +16,9 @@ class PaymentEntity(
     @Column(name = "order_id", nullable = false)
     var orderId: UUID,
 
-    @Column(nullable = false)
-    var status: String,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 32)
+    var status: PaymentStatus,
 
     @Column(nullable = false, precision = 19, scale = 2)
     var amount: BigDecimal,

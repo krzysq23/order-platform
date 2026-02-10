@@ -6,6 +6,7 @@ import java.util.UUID
 interface PaymentRepository {
 
     fun save(payment: Payment): Payment
-    fun findById(id: UUID): Payment?
+    fun findById(id: UUID): Payment
     fun findByOrderId(orderId: UUID): Payment?
+    fun findLatest(limit: Int): List<Payment>
 }

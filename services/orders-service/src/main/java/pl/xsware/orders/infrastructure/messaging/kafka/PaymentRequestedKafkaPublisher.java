@@ -1,6 +1,5 @@
 package pl.xsware.orders.infrastructure.messaging.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -8,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import pl.xsware.orders.application.event.PaymentRequestedEvent;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.JsonNodeException;
 
 import java.nio.charset.StandardCharsets;
 
@@ -24,21 +23,22 @@ public class PaymentRequestedKafkaPublisher {
     private String topic;
 
     public void publish(PaymentRequestedEvent event) {
-        String key = event.getData().getOrderId().toString();
+        String key = event.data().orderId().toString();
 
         String payload;
         try {
             payload = objectMapper.writeValueAsString(event);
-        } catch (JacksonException e) {
+        } catch (JsonNodeException e) {
             throw new IllegalStateException("Cannot serialize PaymentRequestedEvent", e);
         }
 
+
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, payload);
 
-        record.headers().add(new RecordHeader("eventId", event.getEventId().toString().getBytes(StandardCharsets.UTF_8)));
-        record.headers().add(new RecordHeader("eventType", event.getEventType().getBytes(StandardCharsets.UTF_8)));
-        record.headers().add(new RecordHeader("eventVersion", String.valueOf(event.getVersion()).getBytes(StandardCharsets.UTF_8)));
-        record.headers().add(new RecordHeader("occurredAt", event.getOccurredAt().toString().getBytes(StandardCharsets.UTF_8)));
+        record.headers().add(new RecordHeader("eventId", event.eventId().toString().getBytes(StandardCharsets.UTF_8)));
+        record.headers().add(new RecordHeader("eventType", event.eventType().getBytes(StandardCharsets.UTF_8)));
+        record.headers().add(new RecordHeader("eventVersion", String.valueOf(event.version()).getBytes(StandardCharsets.UTF_8)));
+        record.headers().add(new RecordHeader("occurredAt", event.occurredAt().toString().getBytes(StandardCharsets.UTF_8)));
 
         kafkaTemplate.send(record);
     }

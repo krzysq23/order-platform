@@ -53,7 +53,10 @@ dependencies {
 	// Tests
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.boot:spring-boot-starter-data-jpa-test"
+    testImplementation "org.springframework.kafka:spring-kafka-test"
     testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    testImplementation "org.awaitility:awaitility:${awaitilityVersion}"
+    testImplementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
 
 }
 

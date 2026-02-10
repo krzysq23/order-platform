@@ -1,15 +1,15 @@
-package pl.xsware.payments.infrastucture.persistence.mapper
+package pl.xsware.payments.infrastucture.persistence.payment.mapper
 
 import pl.xsware.payments.domain.model.Payment
-import pl.xsware.payments.domain.model.PaymentStatus
-import pl.xsware.payments.infrastucture.persistence.entity.PaymentEntity
+import pl.xsware.payments.infrastucture.persistence.payment.entity.PaymentEntity
+
 
 object PaymentMapper {
 
     fun toEntity(p: Payment) = PaymentEntity(
         id = p.id,
         orderId = p.orderId,
-        status = p.status.name,
+        status = p.status,
         amount = p.amount,
         currency = p.currency,
         provider = p.provider,
@@ -21,7 +21,7 @@ object PaymentMapper {
     fun toDomain(e: PaymentEntity) = Payment(
         id = e.id,
         orderId = e.orderId,
-        status = PaymentStatus.valueOf(e.status),
+        status = e.status,
         amount = e.amount,
         currency = e.currency,
         provider = e.provider,

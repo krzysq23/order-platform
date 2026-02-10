@@ -4,9 +4,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import pl.xsware.orders.application.event.PaymentRequestedEvent;
+import pl.xsware.orders.application.saga.OrderPaymentSagaService;
+import pl.xsware.orders.infrastructure.messaging.kafka.PaymentRequestedKafkaPublisher;
 import pl.xsware.orders.infrastructure.metrics.outbox.OutboxMetrics;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxJpaRepository;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxMessageEntity;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -26,6 +30,8 @@ public class OutboxDispatcher {
     private final OutboxRetryPolicy retryPolicy;
     private final Clock clock;
     private final OutboxMetrics metrics;
+    private final ObjectMapper objectMapper;
+    private final String sagaType = OrderPaymentSagaService.SAGA_TYPE;
 
     @Transactional
     public List<UUID> claimBatch(int batchSize, Duration lockTimeout, String lockedBy) {
@@ -58,14 +64,27 @@ public class OutboxDispatcher {
         }
 
         try {
-            publisher.publish(msg.getId().toString(), msg.getEventType(), msg.getPayload());
+
+            if (!PaymentRequestedEvent.TYPE.equals(msg.getEventType())) {
+                throw new IllegalStateException("Unsupported outbox eventType for payment publisher: " + msg.getEventType());
+            }
+
+            PaymentRequestedEvent event =
+                objectMapper.readValue(msg.getPayload(), PaymentRequestedEvent.class);
+
+            if (event.data() == null || event.data().orderId() == null) {
+                throw new IllegalStateException("Invalid PaymentRequestedEvent payload: data/orderId is null, outboxId=" + id);
+            }
+
+            publisher.publish(event);
 
             msg.setProcessedAt(now);
             msg.setLastError(null);
             clearLock(msg);
-
             outboxJpaRepository.save(msg);
+
             return true;
+
         } catch (Exception e) {
             int nextAttempts = msg.getAttempts() + 1;
             msg.setAttempts(nextAttempts);
@@ -77,8 +96,9 @@ public class OutboxDispatcher {
 
             outboxJpaRepository.save(msg);
 
-            log.warn("Outbox failed id={} attempts={} nextAttemptAt={} error={}",
-                id, nextAttempts, msg.getNextAttemptAt(), e.toString(), e);
+            log.warn("Outbox failed id={} type={} attempts={} nextAttemptAt={} error={}",
+                id, msg.getEventType(), nextAttempts, msg.getNextAttemptAt(), e.toString(), e);
+
             return false;
         }
     }

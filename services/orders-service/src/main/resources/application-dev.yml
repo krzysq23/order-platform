@@ -40,14 +40,25 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: order-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "pl.xsware.orders.application"
+        spring.json.use.type.headers: true
+    listener:
+      ack-mode: record
+
 
 # Scheduler
 orders:
   outbox:
     dispatcher:
       enabled: true
-      fixed-delay: PT15S
-      initial-delay: PT10S
+      fixed-delay: PT2S
+      initial-delay: PT5S
     claim-mode: SKIP_LOCKED  # or ADVISORY
 
 # Metrics
@@ -68,3 +79,6 @@ app:
   kafka:
     topics:
       payment-requested: payments.payment-requested.v1
+      payment-succeeded: payments.payment-succeeded.v1
+      payment-failed: payments.payment-failed.v1
+      payment-cancelled: payments.payment-cancelled.v1

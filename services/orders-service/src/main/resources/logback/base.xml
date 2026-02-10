@@ -20,8 +20,8 @@
         <logger name="pl.xsware.orders" level="DEBUG"/>
         <logger name="OUTBOX" level="DEBUG"/>
         <logger name="HTTP" level="INFO"/>
-        <logger name="org.hibernate.SQL" level="DEBUG"/>
-        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+        <logger name="org.hibernate.SQL" level="INFO"/>
+        <logger name="org.hibernate.orm.jdbc.bind" level="INFO"/>
     </springProfile>
 
 </included>

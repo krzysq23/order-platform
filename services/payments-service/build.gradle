@@ -48,6 +48,9 @@ dependencies {
     // Kafka
     implementation "org.springframework.kafka:spring-kafka"
 
+    // redis
+    implementation "org.springframework.boot:spring-boot-starter-data-redis"
+
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -65,8 +68,10 @@ dependencies {
 
     // Tests
     testImplementation "org.springframework.boot:spring-boot-starter-test"
-    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
-    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    testImplementation "org.testcontainers:postgresql"
+    testImplementation "org.testcontainers:junit-jupiter"
+    testImplementation "com.redis:testcontainers-redis:${testcontainersRedisVersion}"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:${mockitoKotlinVersion}"
 }
 
 kotlin {

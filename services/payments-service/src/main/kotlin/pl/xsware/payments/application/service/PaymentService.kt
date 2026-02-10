@@ -39,14 +39,14 @@ class PaymentService(
         return PaymentResult.from(payment)
     }
 
-    fun getById(id: UUID): PaymentResult? {
-        log.debug("Fetching payment by id={}", id)
-        return repo.findById(id)?.let(PaymentResult::from)
-    }
-
     fun getByOrderId(orderId: UUID): PaymentResult? {
         log.debug("Fetching payment by orderId={}", orderId)
         return repo.findByOrderId(orderId)?.let(PaymentResult::from)
+    }
+
+    fun getByLastOrders(count: Int): List<PaymentResult>? {
+        log.debug("Fetching payments by count={}", count)
+        return repo.findLatest(count).map(PaymentResult::from)
     }
 
 }

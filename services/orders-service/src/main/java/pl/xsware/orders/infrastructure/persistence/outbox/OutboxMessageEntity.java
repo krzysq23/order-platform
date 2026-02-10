@@ -28,6 +28,9 @@ public class OutboxMessageEntity {
     @Column(name = "aggregate_id", nullable = false)
     private String aggregateId;
 
+    @Column(name = "event_id", nullable = false, updatable = false)
+    private UUID eventId;
+
     @Column(name = "event_type", nullable = false)
     private String eventType;
 

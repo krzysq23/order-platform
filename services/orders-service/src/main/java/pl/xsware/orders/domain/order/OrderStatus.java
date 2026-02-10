@@ -3,6 +3,9 @@ package pl.xsware.orders.domain.order;
 public enum OrderStatus {
 
     CREATED,
-    CONFIRMED,
+    PAYMENT_PENDING,
+
+    PAID,
+    PAYMENT_FAILED,
     CANCELLED
 }

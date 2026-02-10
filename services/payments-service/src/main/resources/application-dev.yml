@@ -41,7 +41,39 @@ spring:
       group-id: payments-service
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: pl.xsware.payments.application.event.PaymentRequestedEvent
+        spring.json.trusted.packages: "pl.xsware.payments.application"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+
+  # Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# Scheduler
+outbox:
+  publisher:
+    enabled: true
+    fixed-delay: PT2S
+    initial-delay: PT5S
+    lock-ttl: PT60S
+  fake-provider:
+    enabled: true
+    fixed-delay: PT2S
+    initial-delay: PT5S
+    batch-size: 10
+    success-rate: 0.8
+    provider-name: FAKE_PSP
+    lock-ttl: PT30S
 
 # Metrics
 management:
@@ -57,3 +89,6 @@ app:
   kafka:
     topics:
       payment-requested: payments.payment-requested.v1
+      payment-succeeded: payments.payment-succeeded.v1
+      payment-failed: payments.payment-failed.v1
+      payment-cancelled: payments.payment-cancelled.v1
