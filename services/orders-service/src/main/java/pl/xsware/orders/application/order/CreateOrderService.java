@@ -37,6 +37,8 @@ public class CreateOrderService implements CreateOrderUseCase{
 
         Order order = Order.create(command.customerId(), command.totalAmount(), Currency.PLN);
 
+        order.markInventoryPending();
+
         orderRepository.save(order);
 
         SagaInstanceEntity saga = SagaInstanceEntity.start(
