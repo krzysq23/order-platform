@@ -53,9 +53,11 @@ public class ReserveStockUseCaseImpl implements ReserveStockUseCase {
         var skus = cmd.items().stream().map(ReserveStockCommand.Item::sku).toList();
         var lockedStockItems = stockItemRepository.findForUpdateBySkusAndWarehouse(skus, WAREHOUSE);
 
-        // 3) Domain allocation
+        // 3) Domain allocation + get DomainEvents
         UUID reservationId = UUID.randomUUID();
         var allocation = allocator.allocate(cmd, reservationId, lockedStockItems);
+
+        var domainEvents = allocation.reservation().pullDomainEvents();
 
         // 4) Persist changes
         var reservation = reservationRepository.save(allocation.reservation());
@@ -69,8 +71,7 @@ public class ReserveStockUseCaseImpl implements ReserveStockUseCase {
             request.occurredAt()
         );
 
-        // 6) Enqueue domain events to outbox
-        var domainEvents = reservation.pullDomainEvents();
+        // 6) Enqueue domain events to outbox;
         outbox.enqueueAll(domainEvents, AGGREGATE_TYPE, reservation.getId().toString());
 
         // 7) Return result + log
