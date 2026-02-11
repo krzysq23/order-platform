@@ -77,7 +77,7 @@ public class OrderPaymentSagaService {
 
         orderPaymentUpdater.markPaymentFailed(orderId, event.data().reason());
 
-        saga.transitionTo(SagaState.FAILED);
+        saga.transitionTo(SagaState.PAYMENT_FAILED);
         saga.putUuid("paymentId", event.data().paymentId(), objectMapper);
         saga.putString("reason", event.data().reason(), objectMapper);
 
@@ -181,7 +181,7 @@ public class OrderPaymentSagaService {
     }
 
     private static boolean isFinal(SagaState state) {
-        return state == SagaState.PAID || state == SagaState.FAILED || state == SagaState.CANCELLED;
+        return state == SagaState.PAID || state == SagaState.PAYMENT_FAILED || state == SagaState.CANCELLED;
     }
 
     private static void requireState(SagaInstanceEntity saga, SagaState expected) {
