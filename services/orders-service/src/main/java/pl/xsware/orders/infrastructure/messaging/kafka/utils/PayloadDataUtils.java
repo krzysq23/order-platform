@@ -1,4 +1,4 @@
-package pl.xsware.orders.infrastructure.messaging.kafka;
+package pl.xsware.orders.infrastructure.messaging.kafka.utils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

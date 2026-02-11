@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.xsware.orders.application.event.PaymentRequestedEvent;
+import pl.xsware.orders.application.event.ReserveStockRequestedEvent;
 import pl.xsware.orders.application.saga.OrderPaymentSagaService;
-import pl.xsware.orders.infrastructure.messaging.kafka.PaymentRequestedKafkaPublisher;
 import pl.xsware.orders.infrastructure.metrics.outbox.OutboxMetrics;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxJpaRepository;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxMessageEntity;
@@ -63,20 +63,49 @@ public class OutboxDispatcher {
             return true;
         }
 
+        log.info("OUTBOX_PROCESSING started outboxId={} eventType={} aggregateId={} attempts={}",
+            id,
+            msg.getEventType(),
+            msg.getAggregateId(),
+            msg.getAttempts()
+        );
+
         try {
 
-            if (!PaymentRequestedEvent.TYPE.equals(msg.getEventType())) {
-                throw new IllegalStateException("Unsupported outbox eventType for payment publisher: " + msg.getEventType());
+            String eventType = msg.getEventType();
+
+            switch (eventType) {
+
+                case PaymentRequestedEvent.TYPE -> {
+                    PaymentRequestedEvent event =
+                        objectMapper.readValue(msg.getPayload(), PaymentRequestedEvent.class);
+
+                    if (event.data() == null || event.data().orderId() == null) {
+                        throw new IllegalStateException(
+                            "Invalid PaymentRequestedEvent payload: data/orderId is null, outboxId=" + id
+                        );
+                    }
+
+                    publisher.publish(event);
+                }
+
+                case ReserveStockRequestedEvent.TYPE -> {
+                    ReserveStockRequestedEvent event =
+                        objectMapper.readValue(msg.getPayload(), ReserveStockRequestedEvent.class);
+
+                    if (event.data() == null || event.data().orderId() == null) {
+                        throw new IllegalStateException(
+                            "Invalid StockReservedEvent payload: data/orderId is null, outboxId=" + id
+                        );
+                    }
+
+                    publisher.publish(event);
+                }
+
+                default -> throw new IllegalStateException(
+                    "Unsupported outbox eventType for publisher: " + eventType + ", outboxId=" + id
+                );
             }
-
-            PaymentRequestedEvent event =
-                objectMapper.readValue(msg.getPayload(), PaymentRequestedEvent.class);
-
-            if (event.data() == null || event.data().orderId() == null) {
-                throw new IllegalStateException("Invalid PaymentRequestedEvent payload: data/orderId is null, outboxId=" + id);
-            }
-
-            publisher.publish(event);
 
             msg.setProcessedAt(now);
             msg.setLastError(null);

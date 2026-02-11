@@ -1,4 +1,4 @@
-package pl.xsware.orders.infrastructure.messaging.kafka;
+package pl.xsware.orders.infrastructure.messaging.kafka.payments;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +8,7 @@ import pl.xsware.orders.application.event.PaymentCancelledEvent;
 import pl.xsware.orders.application.event.PaymentFailedEvent;
 import pl.xsware.orders.application.event.PaymentSucceededEvent;
 import pl.xsware.orders.application.saga.OrderPaymentSagaService;
+import pl.xsware.orders.infrastructure.messaging.kafka.utils.PayloadDataUtils;
 
 @Slf4j
 @Component

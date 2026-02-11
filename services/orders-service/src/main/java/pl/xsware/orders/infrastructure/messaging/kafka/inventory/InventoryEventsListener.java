@@ -1,4 +1,4 @@
-package pl.xsware.orders.infrastructure.messaging.kafka;
+package pl.xsware.orders.infrastructure.messaging.kafka.inventory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import pl.xsware.orders.application.event.StockReservationFailedEvent;
 import pl.xsware.orders.application.event.StockReservedEvent;
 import pl.xsware.orders.application.saga.OrderPaymentSagaService;
+import pl.xsware.orders.infrastructure.messaging.kafka.utils.PayloadDataUtils;
 
 @Slf4j
 @Component

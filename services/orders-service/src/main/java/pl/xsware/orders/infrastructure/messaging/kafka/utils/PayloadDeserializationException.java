@@ -1,4 +1,4 @@
-package pl.xsware.orders.infrastructure.messaging.kafka;
+package pl.xsware.orders.infrastructure.messaging.kafka.utils;
 
 public class PayloadDeserializationException extends RuntimeException {
 
