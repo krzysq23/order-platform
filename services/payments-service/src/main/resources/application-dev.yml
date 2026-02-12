@@ -84,6 +84,15 @@ management:
     sampling:
       probability: 1.0
 
+# Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui
+    operationsSorter: method
+    tagsSorter: alpha
+
 # Custom properties
 app:
   kafka:

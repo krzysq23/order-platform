@@ -66,6 +66,9 @@ dependencies {
     // Logging
     implementation "net.logstash.logback:logstash-logback-encoder:${logstashVersion}"
 
+    // Swagger
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${swaggerVersion}"
+
     // Tests
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.testcontainers:postgresql"

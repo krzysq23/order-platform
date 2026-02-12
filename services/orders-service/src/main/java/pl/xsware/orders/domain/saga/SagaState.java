@@ -1,8 +1,10 @@
 package pl.xsware.orders.domain.saga;
 
 public enum SagaState {
+    INVENTORY_REQUESTED,
+    INVENTORY_RESERVED,
     PAYMENT_REQUESTED,
     PAID,
-    FAILED,
+    PAYMENT_FAILED,
     CANCELLED
 }

@@ -36,9 +36,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<Void> createOrder(@RequestBody @Valid CreateOrderRequest request) {
 
-        CreateOrderCommand command = new CreateOrderCommand(
-            request.getCustomerId(), request.getTotalAmount()
-        );
+        CreateOrderCommand command = CreateOrderMapper.toCommand(request);
 
         createOrderUseCase.create(command);
 

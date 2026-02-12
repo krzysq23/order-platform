@@ -1,0 +1,71 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.2'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'pl.xsware'
+version = '0.0.1-SNAPSHOT'
+description = 'Inventory Service Java application'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+    // Spring Boot
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    developmentOnly "org.springframework.boot:spring-boot-devtools"
+
+    // flyway
+    implementation "org.springframework.boot:spring-boot-starter-flyway"
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+
+    // postgresql
+    implementation "org.flywaydb:flyway-database-postgresql"
+    runtimeOnly "org.postgresql:postgresql"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+
+    // Kafka
+    implementation "org.springframework.boot:spring-boot-starter-kafka"
+
+    // metrics + actuator
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "io.micrometer:micrometer-registry-prometheus"
+    implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+
+    // logstash
+    implementation "net.logstash.logback:logstash-logback-encoder:9.0"
+
+    // Swagger
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${swaggerVersion}"
+
+    // Tests
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-data-jpa-test"
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

@@ -62,7 +62,7 @@ public class Order {
         return new Order(id, customerId, status, createdAt, totalAmount, currency);
     }
 
-    public void startPayment() {
+    public void markInventoryPending() {
         if (status == OrderStatus.CANCELLED) {
             throw new IllegalStateException("Cannot start payment for cancelled order " + id.value());
         }
@@ -71,6 +71,16 @@ public class Order {
         }
         if (status != OrderStatus.CREATED && status != OrderStatus.PAYMENT_FAILED) {
             throw new IllegalStateException("Invalid transition to PAYMENT_PENDING from " + status);
+        }
+        this.status = OrderStatus.INVENTORY_PENDING;
+    }
+
+    public void startPayment() {
+        if (status == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot start payment for cancelled order " + id.value());
+        }
+        if (status == OrderStatus.PAID) {
+            return;
         }
         this.status = OrderStatus.PAYMENT_PENDING;
     }
