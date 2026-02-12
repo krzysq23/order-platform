@@ -1,48 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payments-service
+  name: inventory-service
   namespace: order-platform
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: payments-service
+      app: inventory-service
   template:
     metadata:
       labels:
-        app: payments-service
+        app: inventory-service
     spec:
       containers:
-        - name: payments-service
-          image: payments-service:local
+        - name: inventory-service
+          image: inventory-service:local
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8082
+            - containerPort: 8083
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
             - name: LOGGING_CONFIG
               value: classpath:logback-spring-k8s.xml
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://host.docker.internal:5434/payments
+              value: jdbc:postgresql://host.docker.internal:5435/inventory
             - name: SPRING_DATASOURCE_USERNAME
-              value: payments
+              value: inventory
             - name: SPRING_DATASOURCE_PASSWORD
-              value: payments
+              value: inventory
             - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
               value: host.docker.internal:9092
-            - name: SPRING_DATA_REDIS_HOST
-              value: host.docker.internal
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 8082
+              port: 8083
             initialDelaySeconds: 20
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /actuator/health
-              port: 8082
+              port: 8083
             initialDelaySeconds: 40
             periodSeconds: 20

@@ -83,6 +83,10 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  metrics:
+    export:
+      otlp:
+        enabled: false
 
 # Swagger
 springdoc:
