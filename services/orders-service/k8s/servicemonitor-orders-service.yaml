@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: orders-service
+  namespace: observability
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - order-platform
+  selector:
+    matchLabels:
+      app: orders-service
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
+      scrapeTimeout: 10s
