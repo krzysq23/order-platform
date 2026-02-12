@@ -25,7 +25,7 @@ config:
     [INPUT]
         Name              tail
         Tag               kube.*
-        Path              /var/log/containers/*.log
+        Path              /var/log/containers/*_order-platform_*.log
         multiline.parser  docker, cri
         Mem_Buf_Limit     50MB
         Skip_Long_Lines   On
@@ -40,11 +40,6 @@ config:
         Keep_Log            Off
         K8S-Logging.Parser  On
         K8S-Logging.Exclude On
-
-    [FILTER]
-        Name    grep
-        Match   kube.*
-        Regex   kubernetes.container_name ^orders-service$
 
   outputs: |
     [OUTPUT]
