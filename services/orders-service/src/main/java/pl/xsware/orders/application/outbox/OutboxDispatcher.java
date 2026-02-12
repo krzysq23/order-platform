@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.xsware.orders.application.event.PaymentRequestedEvent;
 import pl.xsware.orders.application.event.ReserveStockRequestedEvent;
+import pl.xsware.orders.application.event.StockReservedEvent;
 import pl.xsware.orders.application.saga.OrderPaymentSagaService;
 import pl.xsware.orders.infrastructure.metrics.outbox.OutboxMetrics;
 import pl.xsware.orders.infrastructure.persistence.outbox.OutboxJpaRepository;

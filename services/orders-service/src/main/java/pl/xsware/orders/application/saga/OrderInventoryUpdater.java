@@ -19,7 +19,7 @@ public class OrderInventoryUpdater {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public void markInventoryReserved(UUID orderUuid, StockReservedEvent.Data data) {
+    public void markInventoryReserved(UUID orderUuid, StockReservedEvent data) {
 
         OrderId orderId = OrderId.of(orderUuid);
 

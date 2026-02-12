@@ -82,9 +82,6 @@ public class Order {
         if (status == OrderStatus.PAID) {
             return;
         }
-        if (status != OrderStatus.CREATED && status != OrderStatus.PAYMENT_FAILED) {
-            throw new IllegalStateException("Invalid transition to PAYMENT_PENDING from " + status);
-        }
         this.status = OrderStatus.PAYMENT_PENDING;
     }
 

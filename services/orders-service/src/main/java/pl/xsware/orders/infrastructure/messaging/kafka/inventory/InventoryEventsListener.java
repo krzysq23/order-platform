@@ -23,7 +23,7 @@ public class InventoryEventsListener {
     )
     public void onStockReserved(String payload) {
         StockReservedEvent event = payloadDataUtils.deserialize(payload, StockReservedEvent.class, "onStockReserved");
-        log.info("Inventory stock-reserved received eventId={}, orderId={}", event.eventId(), event.data().orderId());
+        log.info("Inventory stock-reserved received eventId={}, orderId={}", event.eventId(), event.orderId());
         sagaService.handle(event);
     }
 

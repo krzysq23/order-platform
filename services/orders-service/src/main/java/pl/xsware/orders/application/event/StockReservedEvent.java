@@ -9,12 +9,14 @@ public record StockReservedEvent(
     String eventType,
     int version,
     Instant occurredAt,
-    Data data
+    UUID orderId,
+    UUID reservationId,
+    List<Line> lines
 ) {
-    public static final String TYPE = "StockReserved";
-    public static final int VERSION = 1;
 
-    public record Data(UUID orderId, UUID reservationId, List<Line> lines) {
-        public record Line(String sku, String warehouse, int quantity) {}
-    }
+    public record Line(
+        String sku,
+        String warehouse,
+        int quantity
+    ) {}
 }

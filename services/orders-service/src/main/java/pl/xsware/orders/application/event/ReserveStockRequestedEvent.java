@@ -13,6 +13,7 @@ public record ReserveStockRequestedEvent(
     Instant occurredAt,
     Data data
 ) implements OutboxEvent {
+
     public static final String TYPE = "ReserveStockRequested";
     public static final int VERSION = 1;
 

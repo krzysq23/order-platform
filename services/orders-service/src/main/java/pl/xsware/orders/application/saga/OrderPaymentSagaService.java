@@ -108,16 +108,16 @@ public class OrderPaymentSagaService {
     public void handle(StockReservedEvent event) {
         if (alreadyProcessed(event.eventId())) return;
 
-        UUID orderId = event.data().orderId();
+        UUID orderId = event.orderId();
         SagaInstanceEntity saga = loadSagaOrThrow(orderId);
 
         if (isFinal(saga.getState())) return;
 
         requireState(saga, SagaState.INVENTORY_REQUESTED);
 
-        orderInventoryUpdater.markInventoryReserved(orderId, event.data());
+        orderInventoryUpdater.markInventoryReserved(orderId, event);
 
-        saga.putUuid("inventoryReservationId", event.data().reservationId(), objectMapper);
+        saga.putUuid("inventoryReservationId", event.reservationId(), objectMapper);
         saga.transitionTo(SagaState.INVENTORY_RESERVED);
 
         OrderId oid = OrderId.of(orderId);

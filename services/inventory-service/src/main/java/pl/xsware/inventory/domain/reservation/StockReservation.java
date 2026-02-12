@@ -70,17 +70,17 @@ public class StockReservation {
         requireStatus(REQUESTED);
         status = RESERVED;
 
-        domainEvents.add(new StockReservedDomainEvent(
-            UUID.randomUUID(),
-            Instant.now(),
-            orderId,
-            id,
-            lines.stream()
-                .map(l -> new StockReservedDomainEvent.Line(
-                    l.sku.value(), warehouse, l.quantity.value()
-                ))
-                .toList()
-        ));
+        domainEvents.add(
+            StockReservedDomainEvent.of(
+                orderId,
+                id,
+                lines.stream()
+                    .map(l -> new StockReservedDomainEvent.Line(
+                        l.sku.value(), warehouse, l.quantity.value()
+                    ))
+                    .toList()
+            )
+        );
     }
 
     public void markFailed(String reason) {
