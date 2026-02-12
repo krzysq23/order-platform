@@ -18,12 +18,14 @@ spec:
           image: inventory-service:local
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8083
+            - name: http
+              containerPort: 8083
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
             - name: LOGGING_CONFIG
               value: classpath:logback-spring-k8s.xml
+
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://host.docker.internal:5435/inventory
             - name: SPRING_DATASOURCE_USERNAME
@@ -32,15 +34,48 @@ spec:
               value: inventory
             - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
               value: host.docker.internal:9092
+
+            - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
+              value: "true"
+            - name: MANAGEMENT_HEALTH_LIVENESSSTATE_ENABLED
+              value: "true"
+            - name: MANAGEMENT_HEALTH_READINESSSTATE_ENABLED
+              value: "true"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health,info,prometheus"
+            - name: MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED
+              value: "true"
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8083
+            failureThreshold: 30
+            periodSeconds: 5
+            timeoutSeconds: 2
+
           readinessProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/readiness
               port: 8083
-            initialDelaySeconds: 20
-            periodSeconds: 10
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 6
+
           livenessProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/liveness
               port: 8083
-            initialDelaySeconds: 40
-            periodSeconds: 20
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

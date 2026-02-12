@@ -3,9 +3,14 @@ kind: Service
 metadata:
   name: orders-service
   namespace: order-platform
+  labels:
+    app: orders-service
 spec:
+  type: ClusterIP
   selector:
     app: orders-service
   ports:
-    - port: 8081
+    - name: http
+      port: 8081
       targetPort: 8081
+      protocol: TCP

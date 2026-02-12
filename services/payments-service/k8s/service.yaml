@@ -3,9 +3,14 @@ kind: Service
 metadata:
   name: payments-service
   namespace: order-platform
+  labels:
+    app: orders-service
 spec:
+  type: ClusterIP
   selector:
     app: payments-service
   ports:
-    - port: 8082
+    - name: http
+      port: 8082
       targetPort: 8082
+      protocol: TCP
