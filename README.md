@@ -1,79 +1,263 @@
-# Order Platform – Microservices Demo
+# Distributed Order Processing System
 
-Production-like system built to practice and demonstrate modern backend development
-with Java/Kotlin, Spring Boot, and event-driven microservices architecture.
+Production-style distributed system built with **Java 21, Kotlin, Spring Boot 4, Kafka and PostgreSQL**.
 
-The project focuses on real-world problems often discussed during Mid/Senior Java
-interviews: transactions, distributed systems, Kafka, idempotency, concurrency,
-Clean Architecture, DDD, and observability.
+This project demonstrates practical implementation of:
 
----
-
-## 📌 System Overview
-
-The system simulates an order processing platform:
-Order → Payment → Stock Reservation → Notification.
-
-Communication between services is asynchronous (Kafka) and follows
-event-driven principles.
+- Domain-Driven Design (DDD)
+- Saga Pattern (Orchestration)
+- Outbox Pattern
+- Idempotent Consumer
+- Event-Driven Architecture
+- Clean Architecture
 
 ---
 
-## 🧩 Microservices
+# Architecture Overview
+
+The system consists of three microservices:
 
 | Service | Language | Responsibility |
-|-------|--------|----------------|
-| orders-service | Java | Order lifecycle, transactions, outbox, read model |
-| payments-service | Kotlin | Payment processing, async workflows |
-| inventory-service | Java | Stock management and reservation |
-| notifications-service | Java | Asynchronous notifications |
+|----------|----------|----------------|
+| `orders-service` | Java (Spring Boot 4) | Order lifecycle, Saga orchestration, Outbox publishing |
+| `inventory-service` | Java (Spring Boot 4) | Stock management and reservation |
+| `payments-service` | Kotlin (Spring Boot 3) | Payment processing |
 
-Each service:
-- owns its database (PostgreSQL),
-- exposes REST APIs,
-- communicates via Kafka events.
+Communication between services is fully **asynchronous via Kafka**.
+
+Each service has its own database (Database per Service pattern).
 
 ---
 
-## 🏗 Architecture & Design
+# Business Flow (Happy Path)
 
-- **Architecture style:** Microservices + Clean Architecture (Hexagonal)
-- **Domain modeling:** Domain-Driven Design (aggregates, value objects, domain events)
-- **Messaging:** Kafka (at-least-once delivery)
-- **Data consistency:** Outbox Pattern, idempotent consumers
-- **Caching & NoSQL:** Redis (cache-aside, idempotency keys)
-- **Concurrency:** Controlled async processing and parallel workflows
-- **Transactions:** Declarative transaction management (Spring)
+1. `POST /orders`
+2. Order created with status `INVENTORY_PENDING`
+3. `ReserveStockRequested` saved to outbox
+4. Inventory reserves stock → publishes `StockReserved`
+5. Orders service publishes `PaymentRequested`
+6. Payments service processes payment → publishes `PaymentSucceeded`
+7. Orders service marks order as `PAID`
 
-Architecture decisions are documented in `/docs/adr`.
-
----
-
-## 🔄 Event Flow (High Level)
-
-1. Client creates an order via `orders-service`
-2. Order is stored in DB and an event is written to the outbox table (same transaction)
-3. Outbox publisher publishes `OrderCreated` event to Kafka
-4. `payments-service` processes payment and emits `PaymentAuthorized` or `PaymentRejected`
-5. `inventory-service` reserves stock
-6. `notifications-service` sends confirmation asynchronously
+All cross-service communication happens through Kafka topics.
 
 ---
 
-## 🧪 Testing Strategy
+# Patterns Implemented
 
-- Unit tests: domain and application layers
-- Integration tests: REST, Kafka, database (Testcontainers)
-- Focus on business rules, transaction boundaries, and idempotency
+## Saga Pattern (Orchestration)
+
+- Implemented in `orders-service`
+- `saga_instances` table maintains state
+- Explicit state machine
+- Idempotent event handling
+
+### Saga States
+
+- Each service has `outbox_messages`
+- Events written in the same DB transaction as business state
+- Background dispatcher publishes to Kafka
+- `FOR UPDATE SKIP LOCKED` used for safe concurrent processing
+
+### Saga States
+
+- `processed_events` table prevents double processing
+- Ensures safe retries and at-least-once delivery
+
+### Domain-Driven Design
+
+- Aggregates encapsulate business logic
+- Domain events emitted from aggregates
+- Infrastructure maps Domain Events → Integration Events
+- Clean separation:
+```
+domain
+application
+infrastructure
+```
 
 ---
 
-## 🚀 Running the System Locally
+# Event Envelope Structure
 
-### Prerequisites
-- Java 21
-- Docker & Docker Compose
+All integration events follow consistent structure:
 
-### Start infrastructure
+```json
+{
+  "eventId": "uuid",
+  "eventType": "StockReserved",
+  "version": 1,
+  "occurredAt": "2026-02-11T10:49:43Z",
+  "data": { ... }
+}
+```
+
+This ensures:
+- versioning
+- schema stability
+- consumer compatibility
+
+---
+
+# Database
+
+Each service has its own PostgreSQL database.
+
+Key tables:
+
+## Orders Service
+
+- `orders`
+- `saga_instances`
+- `processed_events`
+- `outbox_messages`
+
+## Inventory Service
+
+- `products`
+- `product_category`
+- `stock_items`
+- `stock_reservations`
+- `stock_reservation_lines`
+- `outbox_messages`
+
+## Payments Service
+
+- `payments`
+- `outbox_messages`
+- `processed_events`
+
+Flyway is used for schema migrations.
+
+---
+
+# Running the Project
+
+## Requirements
+
+- Docker
+- Docker Compose
+- Java 21+
+- Gradle
+
+## Start all services
+
 ```bash
-docker-compose up -d
+docker-compose up --build
+```
+
+Kafka, PostgreSQL and all services will start automatically.
+
+---
+
+# Example Flow
+
+## Create Order
+
+```bash
+curl -X POST http://localhost:8081/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerId": "CUST-1",
+    "items": [
+      { "sku": "TV-LG-65-OLED", "quantity": 1 },
+      { "sku": "DISHWASHER-SIEMENS", "quantity": 1 }
+    ]
+  }'
+```
+
+## Create Order
+
+```bash
+GET http://localhost:8081/orders/{orderId}
+```
+
+---
+
+# API Documentation
+
+Swagger UI available:
+
+- Orders:
+`http://localhost:8081/swagger-ui.html`
+- Inventory:
+`http://localhost:8083/swagger-ui.html`
+- Payments:
+`http://localhost:8082/swagger-ui.html`
+
+---
+
+# Technical Highlights
+
+- Spring Boot 4 (Java 21)
+- Kotlin Spring Boot
+- Kafka (event-driven architecture)
+- PostgreSQL + Flyway
+- Hibernate + JPA
+- Structured logging
+- Clean Architecture layering
+- Explicit state transitions
+- No anemic domain model
+- Explicit integration event mapping
+
+---
+
+# Example State Machines
+
+## OrderStatus
+
+```
+CREATED
+INVENTORY_PENDING
+PAYMENT_PENDING
+PAID
+PAYMENT_FAILED
+CANCELLED
+```
+
+## SagaState
+
+```
+INVENTORY_REQUESTED
+INVENTORY_RESERVED
+PAYMENT_REQUESTED
+PAID
+PAYMENT_FAILED
+CANCELLED
+```
+
+---
+
+# Design Decisions
+
+- Orchestration Saga instead of Choreography → clearer flow control
+- Explicit envelope events for versioning
+- Domain Events ≠ Integration Events
+- Outbox for guaranteed delivery
+- Idempotency at consumer side
+- No synchronous inter-service calls
+
+---
+
+# Why This Project?
+
+The goal was to build a realistic production-style distributed system, demonstrating:
+
+- handling of distributed transactions
+- event-driven architecture
+- reliability patterns
+- domain modeling discipline
+- clean infrastructure boundaries
+
+This project is intended as a portfolio-grade example of building resilient microservices using modern JVM stack.
+
+---
+
+# Possible Future Extensions
+
+- Inventory step compensation
+- Dead-letter topics
+- Observability (Prometheus + Grafana)
+- OpenTelemetry tracing
+- Contract testing
+- Kubernetes deployment manifests
